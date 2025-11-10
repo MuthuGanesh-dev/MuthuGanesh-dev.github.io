@@ -245,7 +245,7 @@ export default function Portfolio() {
             </Button>
             <Button variant="outline" size="lg" className="gap-2" asChild>
               <a
-                href="https://github.com/muthu3012"
+                href="https://github.com/MuthuGanesh-dev"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -567,7 +567,7 @@ export default function Portfolio() {
             <div className="flex gap-4 justify-center">
               <Button variant="outline" size="icon" asChild>
                 <a
-                  href="https://github.com/muthu3012"
+                  href="https://github.com/MuthuGanesh-dev"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
