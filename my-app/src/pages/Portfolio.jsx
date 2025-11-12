@@ -17,6 +17,7 @@ import {
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
@@ -27,6 +28,22 @@ export default function Portfolio() {
   });
 
   const [projects, setProjects] = useState([]);
+
+  // Password for authentication (change this to your desired password)
+  const ADMIN_PASSWORD = "ganesh3012";
+
+  // Check authentication
+  const checkPassword = () => {
+    const password = prompt("Enter admin password to manage projects:");
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      return true;
+    } else if (password !== null) {
+      // User clicked OK but wrong password
+      alert("Incorrect password! Access denied.");
+    }
+    return false;
+  };
 
   // Load projects from projects.json on component mount
   useEffect(() => {
@@ -59,10 +76,10 @@ export default function Portfolio() {
   const handleAddProject = async (e) => {
     e.preventDefault();
 
-    // Convert comma-separated tech string to array
+    // Convert comma-separated tech string to array and uppercase
     const techArray = newProject.tech
       .split(",")
-      .map((t) => t.trim())
+      .map((t) => t.trim().toUpperCase()) // Convert to uppercase for case-insensitive matching
       .filter((t) => t);
 
     const projectToAdd = {
@@ -100,6 +117,11 @@ export default function Portfolio() {
   };
 
   const handleDeleteProject = async (indexToDelete) => {
+    // Check authentication first
+    if (!isAuthenticated && !checkPassword()) {
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to delete this project?")) {
       return;
     }
@@ -131,13 +153,33 @@ export default function Portfolio() {
     }));
   };
 
-  // Core skills - fixed list
-  const skills = [
-    { name: "Schematic & PCB Design", level: 90 },
-    { name: "Embedded C Programming", level: 85 },
-    { name: "Python Scripting", level: 80 },
-    { name: "Embedded Systems & IoT Projects", level: 85 },
-  ];
+  // Dynamically generate skills from projects
+  const generateSkills = () => {
+    const projectTechs = {};
+
+    // Extract technologies from all projects and count occurrences
+    projects.forEach((project) => {
+      if (project.tech && Array.isArray(project.tech)) {
+        project.tech.forEach((tech) => {
+          if (projectTechs[tech]) {
+            // Existing technology: increase by 2 for each additional use
+            projectTechs[tech] = projectTechs[tech] + 2;
+          } else {
+            // New technology: start at 50%
+            projectTechs[tech] = 50;
+          }
+        });
+      }
+    });
+
+    // Convert to array format and cap levels at 95
+    return Object.entries(projectTechs).map(([name, level]) => ({
+      name,
+      level: Math.min(level, 95),
+    }));
+  };
+
+  const skills = generateSkills();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -244,12 +286,6 @@ export default function Portfolio() {
                 IoT development, transforming ideas into functional prototypes
                 and real-world applications.
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                From 7-segment displays to complex sensor integrations, I enjoy
-                working on projects that bridge the gap between hardware and
-                software, bringing concepts to life through hands-on engineering
-                and experimentation.
-              </p>
             </div>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
@@ -294,7 +330,14 @@ export default function Portfolio() {
               <CodeIcon className="h-6 w-6 text-primary" />
               <h2 className="text-3xl font-bold">Featured Projects</h2>
             </div>
-            <Button onClick={() => setShowAddProject(true)} className="gap-2">
+            <Button
+              onClick={() => {
+                if (isAuthenticated || checkPassword()) {
+                  setShowAddProject(true);
+                }
+              }}
+              className="gap-2"
+            >
               <PlusIcon className="h-4 w-4" />
               Add Project
             </Button>
