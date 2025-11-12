@@ -131,44 +131,13 @@ export default function Portfolio() {
     }));
   };
 
-  // Dynamically generate skills from projects
-  const generateSkills = () => {
-    // Base core skills that always show
-    const coreSkills = {
-      "Circuit Design & Electronics": 90,
-      "Arduino & Microcontrollers": 85,
-      "Embedded C/C++": 80,
-      "IoT & Sensor Integration": 85,
-      "PCB Design & Prototyping": 75,
-      "Python for Hardware": 80,
-    };
-
-    // Extract unique technologies from all projects
-    const projectTechs = {};
-    projects.forEach((project) => {
-      if (project.tech && Array.isArray(project.tech)) {
-        project.tech.forEach((tech) => {
-          if (!coreSkills[tech]) {
-            // If it's a new tech not in core skills, add it with a level
-            projectTechs[tech] = projectTechs[tech]
-              ? projectTechs[tech] + 10 // Increase level if tech appears multiple times
-              : 70; // Default level for new tech
-          }
-        });
-      }
-    });
-
-    // Merge core skills with project-derived skills
-    const allSkills = { ...coreSkills, ...projectTechs };
-
-    // Convert to array format and cap levels at 95
-    return Object.entries(allSkills).map(([name, level]) => ({
-      name,
-      level: Math.min(level, 95),
-    }));
-  };
-
-  const skills = generateSkills();
+  // Core skills - fixed list
+  const skills = [
+    { name: "Schematic & PCB Design", level: 90 },
+    { name: "Embedded C Programming", level: 85 },
+    { name: "Python Scripting", level: 80 },
+    { name: "Embedded Systems & IoT Projects", level: 85 },
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -231,10 +200,12 @@ export default function Portfolio() {
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             Hi, I'm <span className="text-primary">Muthuganesh</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
-            I design and develop innovative electronics projects, embedded
-            systems, and IoT solutions. Passionate about bringing hardware to
-            life through creative engineering and problem-solving.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            Embedded Systems Engineer specializing in PCB design,
+            microcontroller programming, and IoT solutions. Experienced with PIC
+            MCUs, Eagle, MPLAB X IDE, and A7672C GSM modules. Skilled in
+            hardware design, UART debugging, PCB repair, and Python automation,
+            focused on building smart, connected embedded systems.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Button size="lg" className="gap-2" asChild>
