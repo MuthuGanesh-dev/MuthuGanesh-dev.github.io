@@ -1,3 +1,14 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "title": "Smart home automation",
+      "description": "Fine project",
+      "tech": [
+        "FULL STACK"
+      ],
+      "videoUrl": "",
+      "pdfUrl": "",
+      "link": "#"
+    }
+  ]
 }
