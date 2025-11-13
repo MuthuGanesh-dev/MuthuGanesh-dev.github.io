@@ -1,23 +1,14 @@
 {
   "projects": [
     {
-      "title": "Smart home automation",
-      "description": "Fine project",
+      "title": "📞 A7670C Call Test Using USB-to-TTL and Tera Term",
+      "description": "I performed a voice call test using the SIMCom A7670C 4G LTE module connected to a PC via a USB-to-TTL converter. Communication was done through Tera Term using AT commands.",
       "tech": [
-        "FULL STACK"
+        "EMBEDDED COMMUNICATION SYSTEMS",
+        "GSM MODULE"
       ],
-      "videoUrl": "",
-      "pdfUrl": "",
-      "link": "#"
-    },
-    {
-      "title": "Personal Portfolio",
-      "description": "Introducing new things",
-      "tech": [
-        "SCHEMATIC & PCB DESIGN"
-      ],
-      "videoUrl": "",
-      "pdfUrl": "",
+      "videoUrl": "D:\\MGP TECH INNOVATION\\gsm module\\CALL WITH A7670C\\video",
+      "pdfUrl": "D:\\MGP TECH INNOVATION\\gsm module\\CALL WITH A7670C\\pdf",
       "link": "#"
     }
   ]
