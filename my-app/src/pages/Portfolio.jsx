@@ -180,13 +180,26 @@ export default function Portfolio() {
       return;
     }
 
-    // Check file size (recommend < 50MB for base64)
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
+    // Check file size (recommend < 10MB for base64)
     const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
       alert(
-        "Video file is too large. Please upload a file smaller than 50MB or use a video hosting service like YouTube."
+        `Video file is ${fileSizeMB}MB. Please upload a file smaller than 50MB or use a video hosting service like YouTube.`
       );
       return;
+    }
+
+    // Warn for large files
+    if (file.size > 10 * 1024 * 1024) {
+      const confirmed = window.confirm(
+        `Video size is ${fileSizeMB}MB. Large videos may take time to upload and could fail.\n\nFor best results, use videos < 10MB or host on YouTube.\n\nContinue anyway?`
+      );
+      if (!confirmed) {
+        e.target.value = ""; // Clear the input
+        return;
+      }
     }
 
     setUploadingVideo(true);
@@ -201,6 +214,7 @@ export default function Portfolio() {
           videoUrl: dataUrl,
         }));
         setUploadingVideo(false);
+        alert(`✓ Video uploaded successfully (${fileSizeMB}MB)`);
       };
       reader.onerror = () => {
         alert("Error reading video file");
