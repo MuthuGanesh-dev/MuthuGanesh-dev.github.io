@@ -1,3 +1,14 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "title": "smart home automation",
+      "description": "dkcfklefkijsier",
+      "tech": [
+        "SCHEMATIC & PCB DESIGN"
+      ],
+      "videoUrl": "\"C:\\Users\\Nithish\\Desktop\\WhatsApp Video 2025-06-16 at 18.58.25_735ca027.mp4\"",
+      "pdfUrl": "\"C:\\Users\\Nithish\\Desktop\\layaranjith.pdf\"",
+      "link": "#"
+    }
+  ]
 }
