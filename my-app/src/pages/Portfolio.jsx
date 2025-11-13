@@ -30,6 +30,8 @@ export default function Portfolio() {
     pdfUrl: "",
     link: "#",
   });
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [projects, setProjects] = useState([]);
 
@@ -165,6 +167,94 @@ export default function Portfolio() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Handle video file upload
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's a video file
+    if (!file.type.startsWith("video/")) {
+      alert("Please upload a valid video file");
+      return;
+    }
+
+    // Check file size (recommend < 50MB for base64)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      alert(
+        "Video file is too large. Please upload a file smaller than 50MB or use a video hosting service like YouTube."
+      );
+      return;
+    }
+
+    setUploadingVideo(true);
+
+    try {
+      // Convert to base64 data URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result;
+        setNewProject((prev) => ({
+          ...prev,
+          videoUrl: dataUrl,
+        }));
+        setUploadingVideo(false);
+      };
+      reader.onerror = () => {
+        alert("Error reading video file");
+        setUploadingVideo(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Video upload error:", error);
+      alert("Failed to upload video");
+      setUploadingVideo(false);
+    }
+  };
+
+  // Handle PDF file upload
+  const handlePdfUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's a PDF file
+    if (file.type !== "application/pdf") {
+      alert("Please upload a valid PDF file");
+      return;
+    }
+
+    // Check file size
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      alert("PDF file is too large. Please upload a file smaller than 10MB.");
+      return;
+    }
+
+    setUploadingPdf(true);
+
+    try {
+      // Convert to base64 data URL
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result;
+        setNewProject((prev) => ({
+          ...prev,
+          pdfUrl: dataUrl,
+        }));
+        setUploadingPdf(false);
+      };
+      reader.onerror = () => {
+        alert("Error reading PDF file");
+        setUploadingPdf(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("PDF upload error:", error);
+      alert("Failed to upload PDF");
+      setUploadingPdf(false);
+    }
   };
 
   // Dynamically generate skills from projects
@@ -420,36 +510,57 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Video URL
+                      Video Upload
                     </label>
-                    <input
-                      type="text"
-                      name="videoUrl"
-                      value={newProject.videoUrl}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded-md bg-background"
-                      placeholder="/videos/your-video.mp4"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Upload video to public/videos folder first
-                    </p>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoUpload}
+                        className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                      />
+                      {uploadingVideo && (
+                        <p className="text-xs text-blue-500">
+                          Uploading video...
+                        </p>
+                      )}
+                      {newProject.videoUrl && !uploadingVideo && (
+                        <p className="text-xs text-green-500">
+                          ✓ Video uploaded successfully
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Upload a video file (max 50MB). For larger files, use
+                        YouTube or another hosting service.
+                      </p>
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      PDF URL
+                      PDF Upload
                     </label>
-                    <input
-                      type="text"
-                      name="pdfUrl"
-                      value={newProject.pdfUrl}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded-md bg-background"
-                      placeholder="/docs/your-document.pdf"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Upload PDF to public/docs folder first
-                    </p>
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handlePdfUpload}
+                        className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                      />
+                      {uploadingPdf && (
+                        <p className="text-xs text-blue-500">
+                          Uploading PDF...
+                        </p>
+                      )}
+                      {newProject.pdfUrl && !uploadingPdf && (
+                        <p className="text-xs text-green-500">
+                          ✓ PDF uploaded successfully
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Upload a PDF file (max 10MB)
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex gap-3 pt-4">
