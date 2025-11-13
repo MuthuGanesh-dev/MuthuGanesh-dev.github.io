@@ -1,14 +1,3 @@
 {
-  "projects": [
-    {
-      "title": "Personal Portfolio",
-      "description": "Introducing new things",
-      "tech": [
-        "SCHEMATIC & PCB DESIGN"
-      ],
-      "videoUrl": "",
-      "pdfUrl": "",
-      "link": "#"
-    }
-  ]
+  "projects": []
 }
