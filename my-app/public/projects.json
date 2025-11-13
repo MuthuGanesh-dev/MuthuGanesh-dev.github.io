@@ -1,3 +1,14 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "title": "Testing project",
+      "description": "Test push for project",
+      "tech": [
+        "FULL STACK"
+      ],
+      "videoUrl": "",
+      "pdfUrl": "",
+      "link": "#"
+    }
+  ]
 }
