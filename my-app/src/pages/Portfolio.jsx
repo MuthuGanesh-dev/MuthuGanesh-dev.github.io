@@ -264,22 +264,22 @@ export default function Portfolio() {
             focused on building smart, connected embedded systems.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="gap-2" asChild>
-              <a href="mailto:smuthuganesh01@gmail.com">
-                <MailIcon className="h-4 w-4" />
-                Get in touch
-              </a>
-            </Button>
-            <Button variant="outline" size="lg" className="gap-2" asChild>
-              <a
-                href="https://github.com/MuthuGanesh-dev"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <GithubIcon className="h-4 w-4" />
-                View GitHub
-              </a>
-            </Button>
+            <a
+              href="mailto:smuthuganesh01@gmail.com"
+              className="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors"
+            >
+              <MailIcon className="h-4 w-4" />
+              Get in touch
+            </a>
+            <a
+              href="https://github.com/MuthuGanesh-dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground font-medium transition-colors"
+            >
+              <GithubIcon className="h-4 w-4" />
+              View GitHub
+            </a>
           </div>
         </div>
       </section>
@@ -611,18 +611,22 @@ export default function Portfolio() {
                   <LinkedinIcon className="h-5 w-5" />
                 </a>
               </Button>
-              <Button variant="outline" size="icon" asChild>
-                <a href="mailto:smuthuganesh01@gmail.com">
-                  <MailIcon className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-            <Button size="lg" className="gap-2" asChild>
-              <a href="mailto:smuthuganesh01@gmail.com">
-                <MailIcon className="h-4 w-4" />
-                Send me an email
+              <a
+                href="mailto:smuthuganesh01@gmail.com"
+                aria-label="Send email to smuthuganesh01@gmail.com"
+                className="inline-flex items-center justify-center size-9 rounded-md border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
+                <MailIcon className="h-5 w-5" />
               </a>
-            </Button>
+            </div>
+            <a
+              href="mailto:smuthuganesh01@gmail.com"
+              aria-label="Send email to smuthuganesh01@gmail.com"
+              className="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors"
+            >
+              <MailIcon className="h-4 w-4" />
+              Send me an email
+            </a>
           </div>
         </div>
       </section>
