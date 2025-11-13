@@ -14,6 +14,10 @@ import {
   XIcon,
   Trash2Icon,
 } from "lucide-react";
+import {
+  saveProjectsToGitHub,
+  loadProjectsFromGitHub,
+} from "@/utils/githubStorage";
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
@@ -45,17 +49,31 @@ export default function Portfolio() {
     return false;
   };
 
-  // Load projects from projects.json on component mount
+  // Load projects from localStorage and GitHub on component mount
   useEffect(() => {
     const loadProjects = async () => {
+      // First, try localStorage for instant load
+      const localProjects = localStorage.getItem("portfolioProjects");
+      if (localProjects) {
+        try {
+          setProjects(JSON.parse(localProjects));
+        } catch (e) {
+          console.log("Error parsing localStorage projects:", e);
+        }
+      }
+
+      // Then load from GitHub for latest data
       try {
-        const response = await fetch("/projects.json");
-        if (response.ok) {
-          const data = await response.json();
-          setProjects(data.projects || []);
+        const githubProjects = await loadProjectsFromGitHub();
+        if (githubProjects && githubProjects.length > 0) {
+          setProjects(githubProjects);
+          localStorage.setItem(
+            "portfolioProjects",
+            JSON.stringify(githubProjects)
+          );
         }
       } catch (error) {
-        console.log("Error loading projects:", error);
+        console.log("Error loading projects from GitHub:", error);
       }
     };
 
@@ -90,17 +108,15 @@ export default function Portfolio() {
     const updatedProjects = [...projects, projectToAdd];
     setProjects(updatedProjects);
 
-    // Save to backend
-    try {
-      await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ projects: updatedProjects }),
-      });
-    } catch (error) {
-      console.log("Error saving project:", error);
+    // Save to localStorage (instant backup)
+    localStorage.setItem("portfolioProjects", JSON.stringify(updatedProjects));
+
+    // Save to GitHub (global sync)
+    const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
+    if (result.success) {
+      alert("✅ " + result.message);
+    } else {
+      alert("⚠️ " + result.message);
     }
 
     // Reset form
@@ -131,17 +147,15 @@ export default function Portfolio() {
     );
     setProjects(updatedProjects);
 
-    // Save to backend
-    try {
-      await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ projects: updatedProjects }),
-      });
-    } catch (error) {
-      console.log("Error deleting project:", error);
+    // Save to localStorage (instant backup)
+    localStorage.setItem("portfolioProjects", JSON.stringify(updatedProjects));
+
+    // Save to GitHub (global sync)
+    const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
+    if (result.success) {
+      alert("✅ " + result.message);
+    } else {
+      alert("⚠️ " + result.message);
     }
   };
 
