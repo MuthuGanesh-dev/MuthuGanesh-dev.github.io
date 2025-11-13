@@ -54,25 +54,11 @@ export default function Portfolio() {
   // Load projects from localStorage and GitHub on component mount
   useEffect(() => {
     const loadProjects = async () => {
-      // First, try localStorage for instant load
-      const localProjects = localStorage.getItem("portfolioProjects");
-      if (localProjects) {
-        try {
-          setProjects(JSON.parse(localProjects));
-        } catch (e) {
-          console.log("Error parsing localStorage projects:", e);
-        }
-      }
-
-      // Then load from GitHub for latest data
+      // Load directly from GitHub (no localStorage due to quota issues with large videos)
       try {
         const githubProjects = await loadProjectsFromGitHub();
         if (githubProjects && githubProjects.length > 0) {
           setProjects(githubProjects);
-          localStorage.setItem(
-            "portfolioProjects",
-            JSON.stringify(githubProjects)
-          );
         }
       } catch (error) {
         console.log("Error loading projects from GitHub:", error);
@@ -110,10 +96,7 @@ export default function Portfolio() {
     const updatedProjects = [...projects, projectToAdd];
     setProjects(updatedProjects);
 
-    // Save to localStorage (instant backup)
-    localStorage.setItem("portfolioProjects", JSON.stringify(updatedProjects));
-
-    // Save to GitHub (global sync)
+    // Save to GitHub (global sync - no localStorage due to quota limits)
     const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
     if (result.success) {
       alert("✅ " + result.message);
@@ -149,10 +132,7 @@ export default function Portfolio() {
     );
     setProjects(updatedProjects);
 
-    // Save to localStorage (instant backup)
-    localStorage.setItem("portfolioProjects", JSON.stringify(updatedProjects));
-
-    // Save to GitHub (global sync)
+    // Save to GitHub (global sync - no localStorage due to quota limits)
     const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
     if (result.success) {
       alert("✅ " + result.message);
