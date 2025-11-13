@@ -35,6 +35,8 @@ jobs:
           npm ci
 
       - name: Build
+        env:
+          VITE_GITHUB_TOKEN: ${{ secrets.VITE_GITHUB_TOKEN }}
         run: |
           cd my-app
           npm run build
