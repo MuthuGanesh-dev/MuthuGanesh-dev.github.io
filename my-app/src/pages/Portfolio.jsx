@@ -18,6 +18,7 @@ import {
   saveProjectsToGitHub,
   loadProjectsFromGitHub,
 } from "@/utils/githubStorage";
+import { uploadVideoToLFS } from "@/utils/lfsVideoStorage";
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
@@ -162,19 +163,19 @@ export default function Portfolio() {
 
     const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
 
-    // Check file size (recommend < 10MB for base64)
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    // Check file size (Git LFS supports up to 2GB, but we recommend < 100MB)
+    const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
       alert(
-        `Video file is ${fileSizeMB}MB. Please upload a file smaller than 50MB or use a video hosting service like YouTube.`
+        `Video file is ${fileSizeMB}MB. Please upload a file smaller than 100MB for better performance.`
       );
       return;
     }
 
     // Warn for large files
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 50 * 1024 * 1024) {
       const confirmed = window.confirm(
-        `Video size is ${fileSizeMB}MB. Large videos may take time to upload and could fail.\n\nFor best results, use videos < 10MB or host on YouTube.\n\nContinue anyway?`
+        `Video size is ${fileSizeMB}MB. Large videos may take time to upload.\n\nContinue?`
       );
       if (!confirmed) {
         e.target.value = ""; // Clear the input
@@ -185,25 +186,27 @@ export default function Portfolio() {
     setUploadingVideo(true);
 
     try {
-      // Convert to base64 data URL
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result;
+      // Upload to Git LFS via GitHub API
+      const result = await uploadVideoToLFS(
+        file,
+        newProject.title || "project"
+      );
+
+      if (result.success) {
         setNewProject((prev) => ({
           ...prev,
-          videoUrl: dataUrl,
+          videoUrl: result.videoUrl,
         }));
         setUploadingVideo(false);
-        alert(`✓ Video uploaded successfully (${fileSizeMB}MB)`);
-      };
-      reader.onerror = () => {
-        alert("Error reading video file");
-        setUploadingVideo(false);
-      };
-      reader.readAsDataURL(file);
+        alert(
+          `✓ Video uploaded successfully (${fileSizeMB}MB)\n${result.message}`
+        );
+      } else {
+        throw new Error(result.message);
+      }
     } catch (error) {
       console.error("Video upload error:", error);
-      alert("Failed to upload video");
+      alert(`Failed to upload video: ${error.message}`);
       setUploadingVideo(false);
     }
   };
