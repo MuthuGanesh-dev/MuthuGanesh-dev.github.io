@@ -234,8 +234,11 @@ export default function Portfolio() {
 
     // Extract technologies from all projects and count occurrences
     projects.forEach((project) => {
-      if (project.tech && Array.isArray(project.tech)) {
-        project.tech.forEach((tech) => {
+      // Check both tech and tags fields (backend uses tags, old data might use tech)
+      const technologies = project.tags || project.tech || [];
+      
+      if (Array.isArray(technologies)) {
+        technologies.forEach((tech) => {
           if (projectTechs[tech]) {
             // Existing technology: increase by 2 for each additional use
             projectTechs[tech] = projectTechs[tech] + 2;
@@ -592,12 +595,20 @@ export default function Portfolio() {
                     {project.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tech.map((tech, i) => (
+                    {project.tech && Array.isArray(project.tech) && project.tech.map((tech, i) => (
                       <span
                         key={i}
                         className="px-2 py-1 text-xs rounded-md bg-primary/10 text-primary"
                       >
                         {tech}
+                      </span>
+                    ))}
+                    {project.tags && Array.isArray(project.tags) && project.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 text-xs rounded-md bg-primary/10 text-primary"
+                      >
+                        {tag}
                       </span>
                     ))}
                   </div>
