@@ -68,6 +68,18 @@
         "FULL STACK"
       ],
       "createdAt": "2026-01-26T14:44:55.176Z"
+    },
+    {
+      "id": 1769438696465,
+      "title": "youtube check",
+      "description": "video is pushed here",
+      "videoUrl": "",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7BKYgZ-HoYw&list=RD7BKYgZ-HoYw&start_radio=1",
+      "thumbnail": "",
+      "tags": [
+        "FULL STACK"
+      ],
+      "createdAt": "2026-01-26T14:44:56.465Z"
     }
   ]
 }
