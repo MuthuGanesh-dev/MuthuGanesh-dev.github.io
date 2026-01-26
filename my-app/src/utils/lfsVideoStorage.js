@@ -14,6 +14,9 @@ const VIDEOS_FOLDER = "my-app/public/videos";
 export async function uploadVideoToLFS(videoFile, projectTitle) {
   const token = import.meta.env.VITE_GITHUB_TOKEN;
 
+  console.log("🔍 Debug - Token exists:", !!token);
+  console.log("🔍 Debug - Token starts with:", token?.substring(0, 10));
+
   if (!token) {
     return {
       success: false,
