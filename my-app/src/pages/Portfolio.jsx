@@ -162,57 +162,62 @@ export default function Portfolio() {
         return;
       }
 
-      // Convert comma-separated tech string to array and uppercase
-      const techArray = newProject.tech
-        .split(",")
-        .map((t) => t.trim().toUpperCase())
-        .filter((t) => t);
-
-      const projectData = {
-        title: newProject.title,
-        description: newProject.description,
-        tags: techArray,
-        thumbnail: newProject.thumbnail || "",
-        youtubeUrl: newProject.youtubeUrl,
-      };
-
       setUploadingVideo(true);
 
-      // Upload to backend (without video file)
-      const result = await uploadProjectWithVideo(
-        projectData, 
-        null, 
-        ADMIN_PASSWORD
-      );
-      
-      setUploadingVideo(false);
+      try {
+        // Convert comma-separated tech string to array and uppercase
+        const techArray = newProject.tech
+          .split(",")
+          .map((t) => t.trim().toUpperCase())
+          .filter((t) => t);
 
-      if (result.success) {
-        alert("✅ " + result.message);
-        
-        // Reset form
-        setNewProject({
-          title: "",
-          description: "",
-          tech: "",
-          videoUrl: "",
-          youtubeUrl: "",
-          pdfUrl: "",
-          link: "#",
-        });
-        setShowAddProject(false);
-        
-        // Reload projects
-        setTimeout(async () => {
-          try {
-            const updatedProjects = await loadProjectsFromBackend();
-            setProjects(updatedProjects || []);
-          } catch (error) {
-            console.error("Error reloading projects:", error);
-          }
-        }, 2000);
-      } else {
-        alert("⚠️ " + result.message);
+        const projectData = {
+          title: newProject.title,
+          description: newProject.description,
+          tags: techArray,
+          thumbnail: newProject.thumbnail || "",
+          youtubeUrl: newProject.youtubeUrl,
+        };
+
+        // Upload to backend (without video file)
+        const result = await uploadProjectWithVideo(
+          projectData, 
+          null, 
+          ADMIN_PASSWORD
+        );
+
+        if (result.success) {
+          alert("✅ " + result.message);
+          
+          // Reset form
+          setNewProject({
+            title: "",
+            description: "",
+            tech: "",
+            videoUrl: "",
+            youtubeUrl: "",
+            pdfUrl: "",
+            link: "#",
+          });
+          setShowAddProject(false);
+          
+          // Reload projects
+          setTimeout(async () => {
+            try {
+              const updatedProjects = await loadProjectsFromBackend();
+              setProjects(updatedProjects || []);
+            } catch (error) {
+              console.error("Error reloading projects:", error);
+            }
+          }, 2000);
+        } else {
+          alert("⚠️ " + result.message);
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("⚠️ Failed to save project: " + error.message);
+      } finally {
+        setUploadingVideo(false);
       }
     }
   };
@@ -656,14 +661,25 @@ export default function Portfolio() {
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button type="submit" className="flex-1">
-                      Add Project
+                    <Button 
+                      type="submit" 
+                      className="flex-1"
+                      disabled={uploadingVideo}
+                    >
+                      {uploadingVideo ? (
+                        videoSource === "file" ? 
+                          `Uploading... ${uploadProgress}%` : 
+                          "Saving..."
+                      ) : (
+                        "Add Project"
+                      )}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       className="flex-1"
                       onClick={() => setShowAddProject(false)}
+                      disabled={uploadingVideo}
                     >
                       Cancel
                     </Button>
