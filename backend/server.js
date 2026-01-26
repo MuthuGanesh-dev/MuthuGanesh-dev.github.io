@@ -197,12 +197,18 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
     
     console.log('✅ Upload complete!');
     
-    res.json({
+    const response = {
       success: true,
-      message: 'Video uploaded successfully',
-      project: newProject,
-      filename: filename
-    });
+      message: youtubeUrl ? 'Project with YouTube video saved successfully' : 'Video uploaded successfully',
+      project: newProject
+    };
+    
+    // Only include filename for file uploads
+    if (req.file) {
+      response.filename = filename;
+    }
+    
+    res.json(response);
     
   } catch (error) {
     console.error('❌ Upload error:', error);
