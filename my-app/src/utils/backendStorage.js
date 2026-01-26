@@ -7,9 +7,10 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
  * @param {Object} projectData - Project metadata
  * @param {File} videoFile - Video file to upload
  * @param {string} password - Admin password for authentication
+ * @param {Function} onProgress - Optional callback for upload progress (0-100)
  * @returns {Promise<{success: boolean, message: string, project?: Object}>}
  */
-export async function uploadProjectWithVideo(projectData, videoFile, password) {
+export async function uploadProjectWithVideo(projectData, videoFile, password, onProgress) {
   // Validate admin password (you should set this in .env as VITE_ADMIN_PASSWORD)
   const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
   
@@ -36,24 +37,54 @@ export async function uploadProjectWithVideo(projectData, videoFile, password) {
     formData.append('thumbnail', projectData.thumbnail || '');
     formData.append('tags', projectData.tags ? projectData.tags.join(',') : '');
 
-    // Upload to backend
-    const response = await fetch(`${BACKEND_URL}/api/upload-video`, {
-      method: 'POST',
-      body: formData
+    // Use XMLHttpRequest for progress tracking
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable && onProgress) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          onProgress(percentComplete);
+        }
+      });
+
+      // Handle completion
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const result = JSON.parse(xhr.responseText);
+            resolve({
+              success: true,
+              message: 'Video uploaded successfully! Changes will be live in 2-3 minutes.',
+              project: result.project
+            });
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.details || error.error || 'Upload failed'));
+          } catch {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        }
+      });
+
+      // Handle errors
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error during upload'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload aborted'));
+      });
+
+      // Send request
+      xhr.open('POST', `${BACKEND_URL}/api/upload-video`);
+      xhr.send(formData);
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.details || error.error || 'Upload failed');
-    }
-
-    const result = await response.json();
-
-    return {
-      success: true,
-      message: 'Video uploaded successfully! Changes will be live in 2-3 minutes.',
-      project: result.project
-    };
 
   } catch (error) {
     console.error('Upload error:', error);

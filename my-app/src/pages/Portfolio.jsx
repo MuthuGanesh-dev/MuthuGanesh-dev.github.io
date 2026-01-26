@@ -37,6 +37,7 @@ export default function Portfolio() {
     link: "#",
   });
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [projects, setProjects] = useState([]);
@@ -96,6 +97,7 @@ export default function Portfolio() {
     }
 
     setUploadingVideo(true);
+    setUploadProgress(0);
 
     // Convert comma-separated tech string to array and uppercase
     const techArray = newProject.tech
@@ -110,10 +112,16 @@ export default function Portfolio() {
       thumbnail: newProject.thumbnail || "",
     };
 
-    // Upload to backend with video
-    const result = await uploadProjectWithVideo(projectData, videoFile, ADMIN_PASSWORD);
+    // Upload to backend with video and progress tracking
+    const result = await uploadProjectWithVideo(
+      projectData, 
+      videoFile, 
+      ADMIN_PASSWORD,
+      (progress) => setUploadProgress(progress)
+    );
     
     setUploadingVideo(false);
+    setUploadProgress(0);
 
     if (result.success) {
       alert("✅ " + result.message);
@@ -494,9 +502,18 @@ export default function Portfolio() {
                         className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                       />
                       {uploadingVideo && (
-                        <p className="text-xs text-blue-500">
-                          Uploading video...
-                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-blue-500 font-medium">Uploading video...</span>
+                            <span className="text-blue-500 font-bold">{uploadProgress}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
                       )}
                       {newProject.videoUrl && !uploadingVideo && (
                         <p className="text-xs text-green-500">
