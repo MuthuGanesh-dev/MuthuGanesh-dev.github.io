@@ -115,10 +115,6 @@ app.get('/health', (req, res) => {
 app.post('/api/upload-video', upload.single('video'), async (req, res) => {
   console.log('📹 Video upload request received');
   
-  if (!req.file) {
-    return res.status(400).json({ error: 'No video file provided' });
-  }
-  
   try {
     // Ensure repo is initialized
     if (!git) {
@@ -129,23 +125,31 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
     console.log('🔄 Pulling latest changes...');
     await git.pull('origin', 'main');
     
-    // Generate unique filename
-    const timestamp = Date.now();
-    const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}_${originalName}`;
+    let videoUrl = '';
+    let youtubeUrl = req.body.youtubeUrl || '';
     
-    // Save video to public/videos directory
-    const videosDir = path.join(REPO_PATH, 'my-app', 'public', 'videos');
-    await fs.mkdir(videosDir, { recursive: true });
-    
-    const videoPath = path.join(videosDir, filename);
-    await fs.writeFile(videoPath, req.file.buffer);
-    
-    console.log(`💾 Video saved: ${filename}`);
-    
-    // Add to git (LFS will handle it automatically)
-    const relativeVideoPath = path.join('my-app', 'public', 'videos', filename);
-    await git.add(relativeVideoPath);
+    // Handle video file upload
+    if (req.file) {
+      // Generate unique filename
+      const timestamp = Date.now();
+      const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}_${originalName}`;
+      
+      // Save video to public/videos directory
+      const videosDir = path.join(REPO_PATH, 'my-app', 'public', 'videos');
+      await fs.mkdir(videosDir, { recursive: true });
+      
+      const videoPath = path.join(videosDir, filename);
+      await fs.writeFile(videoPath, req.file.buffer);
+      
+      console.log(`💾 Video saved: ${filename}`);
+      
+      // Add to git (LFS will handle it automatically)
+      const relativeVideoPath = path.join('my-app', 'public', 'videos', filename);
+      await git.add(relativeVideoPath);
+      
+      videoUrl = `/videos/${filename}`;
+    }
     
     // Update projects.json
     const projectsJsonPath = path.join(REPO_PATH, 'my-app', 'public', 'projects.json');
@@ -163,7 +167,8 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
       id: Date.now(),
       title: req.body.title || 'New Project',
       description: req.body.description || '',
-      videoUrl: `/videos/${filename}`,
+      videoUrl: videoUrl,
+      youtubeUrl: youtubeUrl,
       thumbnail: req.body.thumbnail || '',
       tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
       createdAt: new Date().toISOString()

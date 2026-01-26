@@ -28,11 +28,13 @@ import {
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [videoSource, setVideoSource] = useState("file"); // "file" or "youtube"
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
     tech: "",
     videoUrl: "",
+    youtubeUrl: "",
     pdfUrl: "",
     link: "#",
   });
@@ -87,44 +89,133 @@ export default function Portfolio() {
   const handleAddProject = async (e) => {
     e.preventDefault();
 
-    // Check if video file is selected
-    const videoInput = document.querySelector('input[type="file"][accept*="video"]');
-    const videoFile = videoInput?.files?.[0];
+    // Check video source
+    if (videoSource === "file") {
+      // Check if video file is selected
+      const videoInput = document.querySelector('input[type="file"][accept*="video"]');
+      const videoFile = videoInput?.files?.[0];
 
-    if (!videoFile) {
-      alert("Please select a video file");
-      return;
+      if (!videoFile) {
+        alert("Please select a video file");
+        return;
+      }
+
+      setUploadingVideo(true);
+      setUploadProgress(0);
+
+      // Convert comma-separated tech string to array and uppercase
+      const techArray = newProject.tech
+        .split(",")
+        .map((t) => t.trim().toUpperCase())
+        .filter((t) => t);
+
+      const projectData = {
+        title: newProject.title,
+        description: newProject.description,
+        tags: techArray,
+        thumbnail: newProject.thumbnail || "",
+      };
+
+      // Upload to backend with video and progress tracking
+      const result = await uploadProjectWithVideo(
+        projectData, 
+        videoFile, 
+        ADMIN_PASSWORD,
+        (progress) => setUploadProgress(progress)
+      );
+      
+      setUploadingVideo(false);
+      setUploadProgress(0);
+
+      if (result.success) {
+        alert("✅ " + result.message);
+        
+        // Reset form first
+        setNewProject({
+          title: "",
+          description: "",
+          tech: "",
+          videoUrl: "",
+          youtubeUrl: "",
+          pdfUrl: "",
+          link: "#",
+        });
+        setShowAddProject(false);
+        
+        // Reload projects after a short delay (give GitHub time to process)
+        setTimeout(async () => {
+          try {
+            const updatedProjects = await loadProjectsFromBackend();
+            setProjects(updatedProjects || []);
+          } catch (error) {
+            console.error("Error reloading projects:", error);
+            // Don't update projects on error - keep existing projects
+          }
+        }, 2000);
+      } else {
+        alert("⚠️ " + result.message);
+      }
+    } else {
+      // YouTube URL - save directly without upload
+      if (!newProject.youtubeUrl) {
+        alert("Please enter a YouTube URL");
+        return;
+      }
+
+      // Convert comma-separated tech string to array and uppercase
+      const techArray = newProject.tech
+        .split(",")
+        .map((t) => t.trim().toUpperCase())
+        .filter((t) => t);
+
+      const projectData = {
+        title: newProject.title,
+        description: newProject.description,
+        tags: techArray,
+        thumbnail: newProject.thumbnail || "",
+        youtubeUrl: newProject.youtubeUrl,
+      };
+
+      setUploadingVideo(true);
+
+      // Upload to backend (without video file)
+      const result = await uploadProjectWithVideo(
+        projectData, 
+        null, 
+        ADMIN_PASSWORD
+      );
+      
+      setUploadingVideo(false);
+
+      if (result.success) {
+        alert("✅ " + result.message);
+        
+        // Reset form
+        setNewProject({
+          title: "",
+          description: "",
+          tech: "",
+          videoUrl: "",
+          youtubeUrl: "",
+          pdfUrl: "",
+          link: "#",
+        });
+        setShowAddProject(false);
+        
+        // Reload projects
+        setTimeout(async () => {
+          try {
+            const updatedProjects = await loadProjectsFromBackend();
+            setProjects(updatedProjects || []);
+          } catch (error) {
+            console.error("Error reloading projects:", error);
+          }
+        }, 2000);
+      } else {
+        alert("⚠️ " + result.message);
+      }
     }
-
-    setUploadingVideo(true);
-    setUploadProgress(0);
-
-    // Convert comma-separated tech string to array and uppercase
-    const techArray = newProject.tech
-      .split(",")
-      .map((t) => t.trim().toUpperCase())
-      .filter((t) => t);
-
-    const projectData = {
-      title: newProject.title,
-      description: newProject.description,
-      tags: techArray,
-      thumbnail: newProject.thumbnail || "",
-    };
-
-    // Upload to backend with video and progress tracking
-    const result = await uploadProjectWithVideo(
-      projectData, 
-      videoFile, 
-      ADMIN_PASSWORD,
-      (progress) => setUploadProgress(progress)
-    );
-    
-    setUploadingVideo(false);
-    setUploadProgress(0);
-
-    if (result.success) {
-      alert("✅ " + result.message);
+  };
       
       // Reset form first
       setNewProject({
@@ -492,39 +583,75 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Video Upload *
+                      Video Source *
                     </label>
-                    <div className="space-y-2">
-                      <input
-                        type="file"
-                        accept="video/*"
-                        required
-                        className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                      />
-                      {uploadingVideo && (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-blue-500 font-medium">Uploading video...</span>
-                            <span className="text-blue-500 font-bold">{uploadProgress}%</span>
-                          </div>
-                          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-blue-500 transition-all duration-300 ease-out"
-                              style={{ width: `${uploadProgress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                      {newProject.videoUrl && !uploadingVideo && (
-                        <p className="text-xs text-green-500">
-                          ✓ Video uploaded successfully
-                        </p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Upload a video file (max 50MB). For larger files, use
-                        YouTube or another hosting service.
-                      </p>
+                    <div className="flex gap-4 mb-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="videoSource"
+                          value="file"
+                          checked={videoSource === "file"}
+                          onChange={(e) => setVideoSource(e.target.value)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm">Upload Video File</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="videoSource"
+                          value="youtube"
+                          checked={videoSource === "youtube"}
+                          onChange={(e) => setVideoSource(e.target.value)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm">YouTube URL</span>
+                      </label>
                     </div>
+
+                    {videoSource === "file" ? (
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          required={videoSource === "file"}
+                          className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        {uploadingVideo && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-blue-500 font-medium">Uploading video...</span>
+                              <span className="text-blue-500 font-bold">{uploadProgress}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                                style={{ width: `${uploadProgress}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Upload a video file (max 100MB). For larger files, use YouTube URL option.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <input
+                          type="url"
+                          name="youtubeUrl"
+                          value={newProject.youtubeUrl}
+                          onChange={handleInputChange}
+                          required={videoSource === "youtube"}
+                          className="w-full px-3 py-2 border rounded-md bg-background"
+                          placeholder="https://www.youtube.com/watch?v=..."
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Enter a YouTube video URL. Supports youtube.com and youtu.be links.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -591,7 +718,18 @@ export default function Portfolio() {
                 </Button>
 
                 {/* Video Preview */}
-                {project.videoUrl && (
+                {project.youtubeUrl ? (
+                  <div className="relative aspect-video bg-muted">
+                    <iframe
+                      className="w-full h-full"
+                      src={project.youtubeUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                      title={project.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : project.videoUrl ? (
                   <div className="relative aspect-video bg-muted">
                     <video
                       className="w-full h-full object-cover"
@@ -602,7 +740,7 @@ export default function Portfolio() {
                       Your browser does not support the video tag.
                     </video>
                   </div>
-                )}
+                ) : null}
 
                 <div className="p-6">
                   <h3 className="text-xl font-semibold mb-2">

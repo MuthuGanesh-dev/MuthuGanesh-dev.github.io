@@ -21,21 +21,27 @@ export async function uploadProjectWithVideo(projectData, videoFile, password, o
     };
   }
 
-  if (!videoFile) {
+  // YouTube URL doesn't need a video file
+  if (!videoFile && !projectData.youtubeUrl) {
     return {
       success: false,
-      message: 'No video file provided'
+      message: 'No video file or YouTube URL provided'
     };
   }
 
   try {
     // Create form data
     const formData = new FormData();
-    formData.append('video', videoFile);
+    if (videoFile) {
+      formData.append('video', videoFile);
+    }
     formData.append('title', projectData.title || 'New Project');
     formData.append('description', projectData.description || '');
     formData.append('thumbnail', projectData.thumbnail || '');
     formData.append('tags', projectData.tags ? projectData.tags.join(',') : '');
+    if (projectData.youtubeUrl) {
+      formData.append('youtubeUrl', projectData.youtubeUrl);
+    }
 
     // Use XMLHttpRequest for progress tracking
     return new Promise((resolve, reject) => {
