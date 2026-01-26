@@ -175,67 +175,6 @@ export default function Portfolio() {
     }));
   };
 
-  // Handle video file upload
-  const handleVideoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Check if it's a video file
-    if (!file.type.startsWith("video/")) {
-      alert("Please upload a valid video file");
-      return;
-    }
-
-    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-
-    // Check file size (Git LFS supports up to 2GB, but we recommend < 100MB)
-    const maxSize = 100 * 1024 * 1024; // 100MB
-    if (file.size > maxSize) {
-      alert(
-        `Video file is ${fileSizeMB}MB. Please upload a file smaller than 100MB for better performance.`
-      );
-      return;
-    }
-
-    // Warn for large files
-    if (file.size > 50 * 1024 * 1024) {
-      const confirmed = window.confirm(
-        `Video size is ${fileSizeMB}MB. Large videos may take time to upload.\n\nContinue?`
-      );
-      if (!confirmed) {
-        e.target.value = ""; // Clear the input
-        return;
-      }
-    }
-
-    setUploadingVideo(true);
-
-    try {
-      // Upload to Git LFS via GitHub API
-      const result = await uploadVideoToLFS(
-        file,
-        newProject.title || "project"
-      );
-
-      if (result.success) {
-        setNewProject((prev) => ({
-          ...prev,
-          videoUrl: result.videoUrl,
-        }));
-        setUploadingVideo(false);
-        alert(
-          `✓ Video uploaded successfully (${fileSizeMB}MB)\n${result.message}`
-        );
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error) {
-      console.error("Video upload error:", error);
-      alert(`Failed to upload video: ${error.message}`);
-      setUploadingVideo(false);
-    }
-  };
-
   // Handle PDF file upload
   const handlePdfUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -532,13 +471,13 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Video Upload
+                      Video Upload *
                     </label>
                     <div className="space-y-2">
                       <input
                         type="file"
                         accept="video/*"
-                        onChange={handleVideoUpload}
+                        required
                         className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                       />
                       {uploadingVideo && (
