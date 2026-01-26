@@ -1,1 +1,15 @@
-﻿{"projects":[]}
+{
+  "projects": [
+    {
+      "id": 1769403098799,
+      "title": "smart home automation",
+      "description": "These upload is for testing purpose",
+      "videoUrl": "/videos/1769403098654_lowmp_video.mp4",
+      "thumbnail": "",
+      "tags": [
+        "FULL STACK"
+      ],
+      "createdAt": "2026-01-26T04:51:38.800Z"
+    }
+  ]
+}
