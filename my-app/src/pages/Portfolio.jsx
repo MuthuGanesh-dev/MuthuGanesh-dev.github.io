@@ -18,7 +18,12 @@ import {
   saveProjectsToGitHub,
   loadProjectsFromGitHub,
 } from "@/utils/githubStorage";
-import { uploadVideoToLFS } from "@/utils/lfsVideoStorage";
+import {
+  uploadProjectWithVideo,
+  loadProjectsFromBackend,
+  deleteProjectFromBackend,
+  checkBackendHealth,
+} from "@/utils/backendStorage";
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
@@ -52,17 +57,16 @@ export default function Portfolio() {
     return false;
   };
 
-  // Load projects from localStorage and GitHub on component mount
+  // Load projects from backend on component mount
   useEffect(() => {
     const loadProjects = async () => {
-      // Load directly from GitHub (no localStorage due to quota issues with large videos)
       try {
-        const githubProjects = await loadProjectsFromGitHub();
-        if (githubProjects && githubProjects.length > 0) {
-          setProjects(githubProjects);
+        const backendProjects = await loadProjectsFromBackend();
+        if (backendProjects && backendProjects.length > 0) {
+          setProjects(backendProjects);
         }
       } catch (error) {
-        console.log("Error loading projects from GitHub:", error);
+        console.log("Error loading projects:", error);
       }
     };
 
@@ -83,26 +87,43 @@ export default function Portfolio() {
   const handleAddProject = async (e) => {
     e.preventDefault();
 
+    // Check if video file is selected
+    const videoInput = document.querySelector('input[type="file"][accept*="video"]');
+    const videoFile = videoInput?.files?.[0];
+
+    if (!videoFile) {
+      alert("Please select a video file");
+      return;
+    }
+
+    setUploadingVideo(true);
+
     // Convert comma-separated tech string to array and uppercase
     const techArray = newProject.tech
       .split(",")
-      .map((t) => t.trim().toUpperCase()) // Convert to uppercase for case-insensitive matching
+      .map((t) => t.trim().toUpperCase())
       .filter((t) => t);
 
-    const projectToAdd = {
-      ...newProject,
-      tech: techArray,
+    const projectData = {
+      title: newProject.title,
+      description: newProject.description,
+      tags: techArray,
+      thumbnail: newProject.thumbnail || "",
     };
 
-    const updatedProjects = [...projects, projectToAdd];
-    setProjects(updatedProjects);
+    // Upload to backend with video
+    const result = await uploadProjectWithVideo(projectData, videoFile, ADMIN_PASSWORD);
+    
+    setUploadingVideo(false);
 
-    // Save to GitHub (global sync - no localStorage due to quota limits)
-    const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
     if (result.success) {
       alert("✅ " + result.message);
+      // Reload projects
+      const updatedProjects = await loadProjectsFromBackend();
+      setProjects(updatedProjects);
     } else {
       alert("⚠️ " + result.message);
+      return;
     }
 
     // Reset form
@@ -128,15 +149,19 @@ export default function Portfolio() {
       return;
     }
 
-    const updatedProjects = projects.filter(
-      (_, index) => index !== indexToDelete
+    const projectToDelete = projects[indexToDelete];
+      
+    // Delete from backend
+    const result = await deleteProjectFromBackend(
+      projectToDelete.id,
+      ADMIN_PASSWORD
     );
-    setProjects(updatedProjects);
-
-    // Save to GitHub (global sync - no localStorage due to quota limits)
-    const result = await saveProjectsToGitHub(updatedProjects, ADMIN_PASSWORD);
+      
     if (result.success) {
       alert("✅ " + result.message);
+      // Reload projects
+      const updatedProjects = await loadProjectsFromBackend();
+      setProjects(updatedProjects);
     } else {
       alert("⚠️ " + result.message);
     }
