@@ -118,25 +118,32 @@ export default function Portfolio() {
 
     if (result.success) {
       alert("✅ " + result.message);
-      // Reload projects
-      const updatedProjects = await loadProjectsFromBackend();
-      setProjects(updatedProjects);
+      
+      // Reset form first
+      setNewProject({
+        title: "",
+        description: "",
+        tech: "",
+        videoUrl: "",
+        pdfUrl: "",
+        link: "#",
+      });
+      setShowAddProject(false);
+      
+      // Reload projects after a short delay (give GitHub time to process)
+      setTimeout(async () => {
+        try {
+          const updatedProjects = await loadProjectsFromBackend();
+          if (updatedProjects && Array.isArray(updatedProjects)) {
+            setProjects(updatedProjects);
+          }
+        } catch (error) {
+          console.error("Error reloading projects:", error);
+        }
+      }, 2000);
     } else {
       alert("⚠️ " + result.message);
-      return;
     }
-
-    // Reset form
-    setNewProject({
-      title: "",
-      description: "",
-      tech: "",
-      videoUrl: "",
-      pdfUrl: "",
-      link: "#",
-    });
-
-    setShowAddProject(false);
   };
 
   const handleDeleteProject = async (indexToDelete) => {
@@ -543,7 +550,8 @@ export default function Portfolio() {
           )}
 
           <div className="grid md:grid-cols-2 gap-8">
-            {projects.map((project, idx) => (
+            {projects && projects.length > 0 ? (
+              projects.map((project, idx) => (
               <div
                 key={idx}
                 className="border rounded-lg overflow-hidden bg-card hover:shadow-xl transition-all relative"
@@ -619,7 +627,12 @@ export default function Portfolio() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                <p>No projects yet. Add your first project to get started!</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
