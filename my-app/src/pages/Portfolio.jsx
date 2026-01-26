@@ -62,11 +62,10 @@ export default function Portfolio() {
     const loadProjects = async () => {
       try {
         const backendProjects = await loadProjectsFromBackend();
-        if (backendProjects && backendProjects.length > 0) {
-          setProjects(backendProjects);
-        }
+        setProjects(backendProjects || []);
       } catch (error) {
         console.log("Error loading projects:", error);
+        setProjects([]);
       }
     };
 
@@ -134,11 +133,10 @@ export default function Portfolio() {
       setTimeout(async () => {
         try {
           const updatedProjects = await loadProjectsFromBackend();
-          if (updatedProjects && Array.isArray(updatedProjects)) {
-            setProjects(updatedProjects);
-          }
+          setProjects(updatedProjects || []);
         } catch (error) {
           console.error("Error reloading projects:", error);
+          // Don't update projects on error - keep existing projects
         }
       }, 2000);
     } else {
@@ -167,8 +165,13 @@ export default function Portfolio() {
     if (result.success) {
       alert("✅ " + result.message);
       // Reload projects
-      const updatedProjects = await loadProjectsFromBackend();
-      setProjects(updatedProjects);
+      try {
+        const updatedProjects = await loadProjectsFromBackend();
+        setProjects(updatedProjects || []);
+      } catch (error) {
+        console.error("Error reloading projects:", error);
+        // Keep existing projects on error
+      }
     } else {
       alert("⚠️ " + result.message);
     }
