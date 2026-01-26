@@ -216,32 +216,6 @@ export default function Portfolio() {
       }
     }
   };
-      
-      // Reset form first
-      setNewProject({
-        title: "",
-        description: "",
-        tech: "",
-        videoUrl: "",
-        pdfUrl: "",
-        link: "#",
-      });
-      setShowAddProject(false);
-      
-      // Reload projects after a short delay (give GitHub time to process)
-      setTimeout(async () => {
-        try {
-          const updatedProjects = await loadProjectsFromBackend();
-          setProjects(updatedProjects || []);
-        } catch (error) {
-          console.error("Error reloading projects:", error);
-          // Don't update projects on error - keep existing projects
-        }
-      }, 2000);
-    } else {
-      alert("⚠️ " + result.message);
-    }
-  };
 
   const handleDeleteProject = async (indexToDelete) => {
     // Check authentication first
