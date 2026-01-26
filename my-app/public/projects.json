@@ -68,6 +68,18 @@
         "SENSORS"
       ],
       "createdAt": "2026-01-26T15:01:37.865Z"
+    },
+    {
+      "id": 1769439708368,
+      "title": "youtube button disable button",
+      "description": "button check",
+      "videoUrl": "",
+      "youtubeUrl": "https://www.youtube.com/watch?v=4i1LovQIWw8",
+      "thumbnail": "",
+      "tags": [
+        "SENSORS"
+      ],
+      "createdAt": "2026-01-26T15:01:48.368Z"
     }
   ]
 }
