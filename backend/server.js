@@ -66,6 +66,25 @@ const GITHUB_EMAIL = process.env.GITHUB_EMAIL;
 // Initialize Git repository
 let git = null;
 
+// Helper function to clean up Git lock files
+async function cleanupGitLocks() {
+  const lockFiles = [
+    path.join(REPO_PATH, '.git', 'index.lock'),
+    path.join(REPO_PATH, '.git', 'HEAD.lock'),
+    path.join(REPO_PATH, '.git', 'refs', 'heads', 'main.lock')
+  ];
+  
+  for (const lockFile of lockFiles) {
+    try {
+      await fs.access(lockFile);
+      console.log(`🧹 Removing stale lock file: ${lockFile}`);
+      await fs.unlink(lockFile);
+    } catch (error) {
+      // Lock file doesn't exist, which is fine
+    }
+  }
+}
+
 async function initializeRepo() {
   console.log('🔧 Initializing repository...');
   
@@ -86,6 +105,9 @@ async function initializeRepo() {
       await simpleGit().clone(repoUrlWithToken, REPO_PATH);
       console.log('✅ Repository cloned successfully');
     }
+    
+    // Clean up any stale lock files
+    await cleanupGitLocks();
     
     git = simpleGit(REPO_PATH);
     
@@ -120,6 +142,9 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
     if (!git) {
       await initializeRepo();
     }
+    
+    // Clean up any stale lock files before Git operations
+    await cleanupGitLocks();
     
     // Pull latest changes first
     console.log('🔄 Pulling latest changes...');
@@ -226,6 +251,9 @@ app.get('/api/projects', async (req, res) => {
       await initializeRepo();
     }
     
+    // Clean up any stale lock files
+    await cleanupGitLocks();
+    
     // Pull latest changes
     await git.pull('origin', 'main');
     
@@ -246,6 +274,9 @@ app.delete('/api/projects/:id', async (req, res) => {
     if (!git) {
       await initializeRepo();
     }
+    
+    // Clean up any stale lock files
+    await cleanupGitLocks();
     
     await git.pull('origin', 'main');
     
