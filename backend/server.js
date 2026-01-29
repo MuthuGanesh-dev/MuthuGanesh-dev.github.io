@@ -128,6 +128,20 @@ async function initializeRepo() {
   }
 }
 
+// Root endpoint - welcome message
+app.get('/', (req, res) => {
+  res.json({ 
+    message: '🎨 Portfolio Backend API', 
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      uploadVideo: 'POST /api/upload-video',
+      getProjects: 'GET /api/projects',
+      deleteProject: 'DELETE /api/projects/:id'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend server is running' });
