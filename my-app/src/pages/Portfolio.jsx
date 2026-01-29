@@ -103,57 +103,63 @@ export default function Portfolio() {
       setUploadingVideo(true);
       setUploadProgress(0);
 
-      // Convert comma-separated tech string to array and uppercase
-      const techArray = newProject.tech
-        .split(",")
-        .map((t) => t.trim().toUpperCase())
-        .filter((t) => t);
+      try {
+        // Convert comma-separated tech string to array and uppercase
+        const techArray = newProject.tech
+          .split(",")
+          .map((t) => t.trim().toUpperCase())
+          .filter((t) => t);
 
-      const projectData = {
-        title: newProject.title,
-        description: newProject.description,
-        tags: techArray,
-        thumbnail: newProject.thumbnail || "",
-      };
+        const projectData = {
+          title: newProject.title,
+          description: newProject.description,
+          tags: techArray,
+          thumbnail: newProject.thumbnail || "",
+        };
 
-      // Upload to backend with video and progress tracking
-      const result = await uploadProjectWithVideo(
-        projectData, 
-        videoFile, 
-        ADMIN_PASSWORD,
-        (progress) => setUploadProgress(progress)
-      );
-      
-      setUploadingVideo(false);
-      setUploadProgress(0);
+        // Upload to backend with video and progress tracking
+        const result = await uploadProjectWithVideo(
+          projectData, 
+          videoFile, 
+          ADMIN_PASSWORD,
+          (progress) => setUploadProgress(progress)
+        );
 
-      if (result.success) {
-        alert("✅ " + result.message);
-        
-        // Reset form first
-        setNewProject({
-          title: "",
-          description: "",
-          tech: "",
-          videoUrl: "",
-          youtubeUrl: "",
-          pdfUrl: "",
-          link: "#",
-        });
-        setShowAddProject(false);
-        
-        // Reload projects after a short delay (give GitHub time to process)
-        setTimeout(async () => {
-          try {
-            const updatedProjects = await loadProjectsFromBackend();
-            setProjects(updatedProjects || []);
-          } catch (error) {
-            console.error("Error reloading projects:", error);
-            // Don't update projects on error - keep existing projects
-          }
-        }, 2000);
-      } else {
-        alert("⚠️ " + result.message);
+        if (result.success) {
+          alert("✅ " + result.message);
+          
+          // Reset form first
+          setNewProject({
+            title: "",
+            description: "",
+            tech: "",
+            videoUrl: "",
+            youtubeUrl: "",
+            pdfUrl: "",
+            link: "#",
+          });
+          setShowAddProject(false);
+          
+          // Reload projects after a short delay (give GitHub time to process)
+          setTimeout(async () => {
+            try {
+              const updatedProjects = await loadProjectsFromBackend();
+              setProjects(updatedProjects || []);
+            } catch (error) {
+              console.error("Error reloading projects:", error);
+              // Don't update projects on error - keep existing projects
+            }
+          }, 2000);
+        } else {
+          alert("⚠️ " + result.message);
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("❌ Upload failed: " + error.message);
+      } finally {
+        // Always reset upload state, even on error
+        setUploadingVideo(false);
+        setUploadProgress(0);
       }
     } else {
       // YouTube URL - save directly without upload
