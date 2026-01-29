@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769489454997,
-      "title": "final testcase check",
-      "description": "Testcase 1 -  check the youtube url upload is working and proper button disable system",
-      "videoUrl": "",
-      "youtubeUrl": "https://www.youtube.com/watch?v=7BKYgZ-HoYw&list=RD7BKYgZ-HoYw&start_radio=1",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-01-27T04:50:54.997Z"
-    },
-    {
       "id": 1769489700247,
       "title": "Testcase 2",
       "description": "long video upload",
