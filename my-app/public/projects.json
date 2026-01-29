@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769438927977,
-      "title": "youtube check",
-      "description": "these video is uploaded from youtube",
-      "videoUrl": "",
-      "youtubeUrl": "https://www.youtube.com/watch?v=4i1LovQIWw8",
-      "thumbnail": "",
-      "tags": [
-        "SCHEMATIC & PCB DESIGN"
-      ],
-      "createdAt": "2026-01-26T14:48:47.977Z"
-    },
-    {
       "id": 1769439534968,
       "title": "check add project button",
       "description": "disable after onclick",
