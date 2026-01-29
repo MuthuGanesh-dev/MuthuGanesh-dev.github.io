@@ -1,17 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769437609801,
-      "title": "video check",
-      "description": "testing case 2",
-      "videoUrl": "/videos/1769437605154_WhatsApp_Video_2025-06-16_at_18.58.25_735ca027.mp4",
-      "thumbnail": "",
-      "tags": [
-        "ARDUINO"
-      ],
-      "createdAt": "2026-01-26T14:26:49.801Z"
-    },
-    {
       "id": 1769437671446,
       "title": "testing 3 - checking progress bar",
       "description": "progress bar",
