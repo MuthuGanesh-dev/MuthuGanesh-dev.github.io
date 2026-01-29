@@ -128,6 +128,18 @@
         "ARDUINO"
       ],
       "createdAt": "2026-01-29T06:13:56.844Z"
+    },
+    {
+      "id": 1769667371648,
+      "title": "smart home automation",
+      "description": "project check",
+      "videoUrl": "/videos/1769667370396_VID-20250302-WA0046.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "SCHEMATIC & PCB DESIGN"
+      ],
+      "createdAt": "2026-01-29T06:16:11.648Z"
     }
   ]
 }
