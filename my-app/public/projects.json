@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769667236844,
-      "title": "videos",
-      "description": "describe about project",
-      "videoUrl": "/videos/1769667234899_VID_20230425_213026.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "ARDUINO"
-      ],
-      "createdAt": "2026-01-29T06:13:56.844Z"
-    },
-    {
       "id": 1769667371648,
       "title": "smart home automation",
       "description": "project check",
