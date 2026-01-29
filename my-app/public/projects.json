@@ -1,17 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769437671446,
-      "title": "testing 3 - checking progress bar",
-      "description": "progress bar",
-      "videoUrl": "/videos/1769437671352_lowmp_video.mp4",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-01-26T14:27:51.446Z"
-    },
-    {
       "id": 1769438927977,
       "title": "youtube check",
       "description": "these video is uploaded from youtube",
