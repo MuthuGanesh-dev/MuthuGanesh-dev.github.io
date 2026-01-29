@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769440788640,
-      "title": "youtube button check",
-      "description": "file upload",
-      "videoUrl": "",
-      "youtubeUrl": "https://www.youtube.com/watch?v=4i1LovQIWw8",
-      "thumbnail": "",
-      "tags": [
-        "ARDUINO"
-      ],
-      "createdAt": "2026-01-26T15:19:48.640Z"
-    },
-    {
       "id": 1769489454997,
       "title": "final testcase check",
       "description": "Testcase 1 -  check the youtube url upload is working and proper button disable system",
