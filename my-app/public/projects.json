@@ -35,6 +35,18 @@
         "SCHEMATIC & PCB DESIGN"
       ],
       "createdAt": "2026-02-06T09:08:15.247Z"
+    },
+    {
+      "id": 1770369021107,
+      "title": "Testcase 2",
+      "description": "video upload from device",
+      "videoUrl": "/videos/1770369021047_lowmp_video.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "FULL STACK"
+      ],
+      "createdAt": "2026-02-06T09:10:21.107Z"
     }
   ]
 }
