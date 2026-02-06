@@ -23,6 +23,18 @@
         "SCHEMATIC & PCB DESIGN"
       ],
       "createdAt": "2026-02-06T09:02:05.101Z"
+    },
+    {
+      "id": 1770368895247,
+      "title": "testcase 3",
+      "description": "youtube video check",
+      "videoUrl": "",
+      "youtubeUrl": "https://youtu.be/8LeCvO3gnAE",
+      "thumbnail": "",
+      "tags": [
+        "SCHEMATIC & PCB DESIGN"
+      ],
+      "createdAt": "2026-02-06T09:08:15.247Z"
     }
   ]
 }
