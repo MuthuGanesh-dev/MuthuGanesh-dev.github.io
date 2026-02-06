@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1769669054904,
-      "title": "Testcase1",
-      "description": "short video upload",
-      "videoUrl": "/videos/1769669054846_lowmp_video.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-01-29T06:44:14.904Z"
-    },
-    {
       "id": 1770363635783,
       "title": "Smart home automation",
       "description": "Testcase 1 - check the file upload from pc",
