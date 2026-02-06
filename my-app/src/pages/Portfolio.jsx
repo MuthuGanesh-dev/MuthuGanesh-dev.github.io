@@ -122,7 +122,15 @@ export default function Portfolio() {
           projectData, 
           videoFile, 
           ADMIN_PASSWORD,
-          (progress) => setUploadProgress(progress)
+          (progress) => {
+            setUploadProgress(progress);
+            // Reload window when upload reaches 100%
+            if (progress === 100) {
+              setTimeout(() => {
+                window.location.reload();
+              }, 10000); // Wait 10 seconds after 100% to reload
+            }
+          }
         );
 
         if (result.success) {
