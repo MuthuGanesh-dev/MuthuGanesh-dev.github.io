@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1770363635783,
-      "title": "Smart home automation",
-      "description": "Testcase 1 - check the file upload from pc",
-      "videoUrl": "/videos/1770363634447_CA250511_062057.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "SCHEMATIC & PCB DESIGN"
-      ],
-      "createdAt": "2026-02-06T07:40:35.784Z"
-    },
-    {
       "id": 1770364418132,
       "title": "Testcase 2",
       "description": "check reload window after upload",
