@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1770367350204,
-      "title": "smart home",
-      "description": "ao",
-      "videoUrl": "/videos/1770367350147_lowmp_video.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "ARDUINO"
-      ],
-      "createdAt": "2026-02-06T08:42:30.204Z"
-    },
-    {
       "id": 1770367482246,
       "title": "kfmlkdf",
       "description": "project upload",
