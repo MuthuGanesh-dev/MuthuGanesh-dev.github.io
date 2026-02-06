@@ -1,3 +1,16 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "id": 1770366419696,
+      "title": "Testcase 1 ",
+      "description": "reload after upload",
+      "videoUrl": "/videos/1770366417252_WIN_20250521_09_31_55_Pro.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "SCHEMATIC & PCB DESIGN"
+      ],
+      "createdAt": "2026-02-06T08:26:59.696Z"
+    }
+  ]
 }
