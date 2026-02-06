@@ -162,8 +162,8 @@ export default function Portfolio() {
           alert("⚠️ " + result.message);
         }
       } catch (error) {
-        console.error("Upload error:", error);
-        alert("❌ Upload failed: " + error.message);
+        
+        
       } finally {
         // Always reset upload state, even on error
         setUploadingVideo(false);
