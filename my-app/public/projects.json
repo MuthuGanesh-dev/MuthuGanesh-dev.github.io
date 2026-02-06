@@ -1,3 +1,16 @@
 {
-  "projects": []
+  "projects": [
+    {
+      "id": 1770368429158,
+      "title": "Testcase 1",
+      "description": "project upload through youtube link",
+      "videoUrl": "",
+      "youtubeUrl": "https://youtube.com/shorts/1FZen2c-jZU?si=ZC4smlTA3HQLQ7Zo",
+      "thumbnail": "",
+      "tags": [
+        "FULL STACK"
+      ],
+      "createdAt": "2026-02-06T09:00:29.158Z"
+    }
+  ]
 }
