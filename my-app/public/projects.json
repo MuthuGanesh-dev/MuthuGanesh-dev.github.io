@@ -35,6 +35,18 @@
         "TERATERMS(UART DEBUGGING SOFTWARE)"
       ],
       "createdAt": "2026-02-08T06:33:41.025Z"
+    },
+    {
+      "id": 1770532752772,
+      "title": "A7670C GSM Module – SMS Testing using UART",
+      "description": "Performed SMS (Short Message Service) functionality testing on the A7670C GSM module using UART communication and AT command protocols.\r\n\r\nThe module was interfaced via UART and tested using serial terminal software to send AT commands for SMS configuration, message sending, and response verification.\r\nThe testing focused on ensuring reliable GSM communication, correct message delivery, and proper handling of serial responses.\r\n\r\nThis project provided hands-on experience in GSM SMS operation, UART-based debugging, and AT command flow, which are essential for embedded GSM and IoT communication systems.",
+      "videoUrl": "/videos/1770532750922_WhatsApp_Video_2025-09-05_at_8.05.17_PM.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "TERATERMS(UART DEBUGGING SOFTWARE)"
+      ],
+      "createdAt": "2026-02-08T06:39:12.772Z"
     }
   ]
 }
