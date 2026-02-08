@@ -11,6 +11,18 @@
         "PIC18F26K40"
       ],
       "createdAt": "2026-02-08T06:12:26.786Z"
+    },
+    {
+      "id": 1770531713775,
+      "title": "3-Digit 7-Segment Display PCB with EEPROM Test Circuit (Designed in Eagle)",
+      "description": "Designed and developed a custom 3-digit 7-segment display PCB using Autodesk Eagle, on which a standalone EEPROM test circuit was implemented and validated.\r\n\r\nThe PCB was primarily designed to drive a 3-digit common-cathode 7-segment display, and the EEPROM block was added on the same board to test non-volatile data storage functionality.\r\nThe EEPROM was used to store and retrieve configuration and test data, ensuring data retention even after power loss.\r\n\r\nBoth the display driver circuitry and EEPROM test circuit were carefully designed with proper routing, grounding, and connector access to ensure reliable operation and easy microcontroller interfacing.",
+      "videoUrl": "/videos/1770531713434_EEPROM.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "PIC18F26K40"
+      ],
+      "createdAt": "2026-02-08T06:21:53.775Z"
     }
   ]
 }
