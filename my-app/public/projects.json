@@ -11,6 +11,18 @@
         "C++"
       ],
       "createdAt": "2026-02-08T06:09:16.721Z"
+    },
+    {
+      "id": 1770531146786,
+      "title": "3-Digit 7-Segment Display PCB with ADC Test Circuit (Designed in Eagle)",
+      "description": "Designed and developed a custom 3-digit 7-segment display PCB using Autodesk Eagle, on which a standalone ADC test circuit was implemented and validated.\r\n\r\nThe PCB was primarily created for driving a 3-digit common-cathode 7-segment display, and the ADC block was added on the same board to test and verify analog signal measurement.\r\nThe ADC section was used to read external analog inputs and evaluate signal stability and accuracy before further system integration.\r\n\r\nBoth the display driver circuitry and ADC test circuit were designed with proper grounding, signal routing, and component placement to ensure reliable operation.",
+      "videoUrl": "/videos/1770531146523_ADC.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "PIC18F26K40"
+      ],
+      "createdAt": "2026-02-08T06:12:26.786Z"
     }
   ]
 }
