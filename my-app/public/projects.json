@@ -47,6 +47,18 @@
         "TERATERMS(UART DEBUGGING SOFTWARE)"
       ],
       "createdAt": "2026-02-08T06:39:12.772Z"
+    },
+    {
+      "id": 1770532976178,
+      "title": "A7670C GSM Module – MQTT Publish Testing using UART",
+      "description": "Performed MQTT publish functionality testing on the A7670C GSM module using UART communication and AT command control.\r\n\r\nThe GSM module was configured for packet data connection (GPRS/LTE) and tested to publish data to an MQTT broker using AT commands sent over UART.\r\nSerial terminal software was used to monitor command responses, verify successful network attachment, MQTT connection, and data publish acknowledgment.\r\n\r\nThis testing focused on understanding MQTT protocol flow, GSM-based data communication, and UART-based debugging, which are essential for IoT and remote monitoring applications.",
+      "videoUrl": "/videos/1770532971034_A7670C_IN_MQTTBOX.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "TERATERMS(UART DEBUGGING SOFTWARE)"
+      ],
+      "createdAt": "2026-02-08T06:42:56.178Z"
     }
   ]
 }
