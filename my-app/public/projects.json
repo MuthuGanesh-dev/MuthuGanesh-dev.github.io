@@ -71,20 +71,6 @@
         "TERATERMS(UART DEBUGGING SOFTWARE)"
       ],
       "createdAt": "2026-02-08T06:44:58.778Z"
-    },
-    {
-      "id": 1770533988774,
-      "title": "Multi-Language Dot Matrix Display System using Python, PIC18F26K40, MQTT & A7672S GSM Module",
-      "description": "Developed a multi-language dot matrix display system capable of displaying text in any language, using a combination of Python software, PIC18F26K40 microcontroller, MQTT protocol, and A7672S GSM module.\r\n\r\nThe system allows text input from a Python application, which processes the characters and converts them into bitmap / binary dot-matrix data.\r\nThe processed data is transmitted via MQTT, using the A7672S GSM module for cellular connectivity.\r\n\r\nThe PIC18F26K40 microcontroller subscribes to the MQTT topic, receives the display data, and drives the dot matrix display to render the text in real time.\r\nThis architecture enables remote, language-independent text updates over GSM networks.",
-      "videoUrl": "/videos/1770533986324_WhatsApp_Video_2026-02-08_at_12.23.36_PM.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "PIC18F26K40",
-        "GSM MODULE",
-        "PYTHON"
-      ],
-      "createdAt": "2026-02-08T06:59:48.774Z"
     }
   ]
 }
