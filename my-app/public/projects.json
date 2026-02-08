@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1770369021107,
-      "title": "Testcase 2",
-      "description": "video upload from device",
-      "videoUrl": "/videos/1770369021047_lowmp_video.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-02-06T09:10:21.107Z"
-    },
-    {
       "id": 1770369424208,
       "title": "final testcase",
       "description": "project completion status",
