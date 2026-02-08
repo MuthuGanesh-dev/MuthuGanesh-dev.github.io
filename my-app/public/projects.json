@@ -1,18 +1,6 @@
 {
   "projects": [
     {
-      "id": 1770369424208,
-      "title": "final testcase",
-      "description": "project completion status",
-      "videoUrl": "/videos/1770369423962_VID-20250302-WA0046.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-02-06T09:17:04.208Z"
-    },
-    {
       "id": 1770524829417,
       "title": "Testcase 3",
       "description": "File upload through github.io",
