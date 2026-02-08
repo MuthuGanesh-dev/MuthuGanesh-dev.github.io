@@ -23,6 +23,18 @@
         "PIC18F26K40"
       ],
       "createdAt": "2026-02-08T06:21:53.775Z"
+    },
+    {
+      "id": 1770532421025,
+      "title": "A7670C GSM Module – Outgoing Call Testing using UART",
+      "description": "Performed outgoing phone call testing on the A7670C GSM module using UART communication and AT command protocols via Tera Term.\r\n\r\nThe GSM module was configured over UART, and AT commands were used to dial predefined mobile numbers and control call initiation.\r\nTera Term was used to send commands, monitor serial responses, and verify successful call setup and network connectivity.\r\n\r\nThis project focused on validating GSM outgoing call functionality, UART communication reliability, and AT command execution, which are essential for embedded GSM-based alert and notification systems.",
+      "videoUrl": "/videos/1770532419232_WhatsApp_Video_2025-09-05_at_8.05.16_PM.mp4",
+      "youtubeUrl": "",
+      "thumbnail": "",
+      "tags": [
+        "TERATERMS(UART DEBUGGING SOFTWARE)"
+      ],
+      "createdAt": "2026-02-08T06:33:41.025Z"
     }
   ]
 }
