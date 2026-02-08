@@ -1,16 +1,3 @@
 {
-  "projects": [
-    {
-      "id": 1770524829417,
-      "title": "Testcase 3",
-      "description": "File upload through github.io",
-      "videoUrl": "/videos/1770524828773_VID-20230722-WA0014.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-02-08T04:27:09.417Z"
-    }
-  ]
+  "projects": []
 }
