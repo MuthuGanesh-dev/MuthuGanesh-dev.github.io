@@ -86,18 +86,6 @@
         "SPI"
       ],
       "createdAt": "2026-02-08T07:01:35.776Z"
-    },
-    {
-      "id": 1770618448145,
-      "title": "Testcase upload",
-      "description": "checking pdf upload",
-      "videoUrl": "",
-      "youtubeUrl": "https://www.youtube.com/watch?v=r3oAMDsC-8Y&list=RDr3oAMDsC-8Y&start_radio=1",
-      "thumbnail": "",
-      "tags": [
-        "FULL STACK"
-      ],
-      "createdAt": "2026-02-09T06:27:28.145Z"
     }
   ]
 }
