@@ -36,11 +36,10 @@ export default function Portfolio() {
     videoUrl: "",
     youtubeUrl: "",
     pdfUrl: "",
-    link: "#",
+    link: "",
   });
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const [projects, setProjects] = useState([]);
 
@@ -100,6 +99,10 @@ export default function Portfolio() {
         return;
       }
 
+      // Get PDF file if selected
+      const pdfInput = document.querySelector('input[type="file"][accept=".pdf"]');
+      const pdfFile = pdfInput?.files?.[0];
+
       setUploadingVideo(true);
       setUploadProgress(0);
 
@@ -115,14 +118,14 @@ export default function Portfolio() {
           description: newProject.description,
           tags: techArray,
           thumbnail: newProject.thumbnail || "",
-          link: newProject.link || "#",
-          pdfUrl: newProject.pdfUrl || "",
+          link: newProject.link || "",
         };
 
-        // Upload to backend with video and progress tracking
+        // Upload to backend with video, PDF, and progress tracking
         const result = await uploadProjectWithVideo(
           projectData, 
-          videoFile, 
+          videoFile,
+          pdfFile,
           ADMIN_PASSWORD,
           (progress) => {
             setUploadProgress(progress);
@@ -146,7 +149,7 @@ export default function Portfolio() {
             videoUrl: "",
             youtubeUrl: "",
             pdfUrl: "",
-            link: "#",
+            link: "",
           });
           setShowAddProject(false);
           
@@ -178,6 +181,10 @@ export default function Portfolio() {
         return;
       }
 
+      // Get PDF file if selected
+      const pdfInput = document.querySelector('input[type="file"][accept=".pdf"]');
+      const pdfFile = pdfInput?.files?.[0];
+
       setUploadingVideo(true);
 
       try {
@@ -193,14 +200,14 @@ export default function Portfolio() {
           tags: techArray,
           thumbnail: newProject.thumbnail || "",
           youtubeUrl: newProject.youtubeUrl,
-          link: newProject.link || "#",
-          pdfUrl: newProject.pdfUrl || "",
+          link: newProject.link || "",
         };
 
-        // Upload to backend (without video file)
+        // Upload to backend (with YouTube URL and optional PDF)
         const result = await uploadProjectWithVideo(
           projectData, 
-          null, 
+          null,
+          pdfFile,
           ADMIN_PASSWORD
         );
 
@@ -215,7 +222,7 @@ export default function Portfolio() {
             videoUrl: "",
             youtubeUrl: "",
             pdfUrl: "",
-            link: "#",
+            link: "",
           });
           setShowAddProject(false);
           
@@ -281,47 +288,32 @@ export default function Portfolio() {
     }));
   };
 
-  // Handle PDF file upload
-  const handlePdfUpload = async (e) => {
+  // Handle PDF file selection (validation only - actual upload happens with form submit)
+  const handlePdfSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Check if it's a PDF file
     if (file.type !== "application/pdf") {
       alert("Please upload a valid PDF file");
+      e.target.value = ''; // Reset file input
       return;
     }
 
-    // Check file size
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Check file size - limit to 50MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      alert("PDF file is too large. Please upload a file smaller than 10MB.");
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      alert(`PDF file is too large (${fileSizeMB}MB). Please upload a file smaller than 50MB.`);
+      e.target.value = ''; // Reset file input
       return;
     }
 
-    setUploadingPdf(true);
-
-    try {
-      // Convert to base64 data URL
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result;
-        setNewProject((prev) => ({
-          ...prev,
-          pdfUrl: dataUrl,
-        }));
-        setUploadingPdf(false);
-      };
-      reader.onerror = () => {
-        alert("Error reading PDF file");
-        setUploadingPdf(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error("PDF upload error:", error);
-      alert("Failed to upload PDF");
-      setUploadingPdf(false);
-    }
+    // Just mark that a PDF is selected
+    setNewProject((prev) => ({
+      ...prev,
+      pdfUrl: "pending", // Temporary marker to show PDF is selected
+    }));
   };
 
   // Dynamically generate skills from projects
@@ -583,12 +575,14 @@ export default function Portfolio() {
                       Project Link (Optional)
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       name="link"
                       value={newProject.link}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border rounded-md bg-background"
                       placeholder="https://github.com/yourproject or https://demo.com"
+                      pattern="https?://.+"
+                      title="Please enter a valid URL starting with http:// or https:// (or leave empty)"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Add a link to GitHub repo, live demo, or project website for the "Learn More" button
@@ -670,27 +664,22 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      PDF Upload
+                      PDF Upload (Optional)
                     </label>
                     <div className="space-y-2">
                       <input
                         type="file"
                         accept=".pdf"
-                        onChange={handlePdfUpload}
+                        onChange={handlePdfSelect}
                         className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                       />
-                      {uploadingPdf && (
-                        <p className="text-xs text-blue-500">
-                          Uploading PDF...
-                        </p>
-                      )}
-                      {newProject.pdfUrl && !uploadingPdf && (
+                      {newProject.pdfUrl === "pending" && (
                         <p className="text-xs text-green-500">
-                          ✓ PDF uploaded successfully
+                          ✓ PDF selected - will be uploaded with project
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        Upload a PDF file (max 10MB)
+                        Upload a PDF file (max 50MB) - stored in public/docs folder
                       </p>
                     </div>
                   </div>
@@ -793,7 +782,7 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    {project.pdfUrl && (
+                    {project.pdfUrl && project.pdfUrl.trim() !== "" && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -810,7 +799,7 @@ export default function Portfolio() {
                         </a>
                       </Button>
                     )}
-                    {project.link && project.link !== "#" && (
+                    {project.link && project.link.trim() !== "" && project.link !== "#" && (
                       <Button
                         variant="default"
                         size="sm"

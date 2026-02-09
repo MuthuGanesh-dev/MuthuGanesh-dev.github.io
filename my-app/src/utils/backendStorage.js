@@ -6,11 +6,12 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
  * Upload video and project data to backend
  * @param {Object} projectData - Project metadata
  * @param {File} videoFile - Video file to upload
+ * @param {File} pdfFile - PDF file to upload (optional)
  * @param {string} password - Admin password for authentication
  * @param {Function} onProgress - Optional callback for upload progress (0-100)
  * @returns {Promise<{success: boolean, message: string, project?: Object}>}
  */
-export async function uploadProjectWithVideo(projectData, videoFile, password, onProgress) {
+export async function uploadProjectWithVideo(projectData, videoFile, pdfFile, password, onProgress) {
   // Validate admin password (you should set this in .env as VITE_ADMIN_PASSWORD)
   const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
   
@@ -35,12 +36,14 @@ export async function uploadProjectWithVideo(projectData, videoFile, password, o
     if (videoFile) {
       formData.append('video', videoFile);
     }
+    if (pdfFile) {
+      formData.append('pdf', pdfFile);
+    }
     formData.append('title', projectData.title || 'New Project');
     formData.append('description', projectData.description || '');
     formData.append('thumbnail', projectData.thumbnail || '');
     formData.append('tags', projectData.tags ? projectData.tags.join(',') : '');
-    formData.append('link', projectData.link || '#');
-    formData.append('pdfUrl', projectData.pdfUrl || '');
+    formData.append('link', projectData.link || '');
     if (projectData.youtubeUrl) {
       formData.append('youtubeUrl', projectData.youtubeUrl);
     }

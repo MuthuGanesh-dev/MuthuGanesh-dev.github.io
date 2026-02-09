@@ -40,18 +40,20 @@ app.use(cors({
 
 app.use(express.json());
 
-// Configure multer for video uploads
+// Configure multer for video and PDF uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 500 * 1024 * 1024 // 500MB limit
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
-    if (allowedTypes.includes(file.mimetype)) {
+    const allowedVideoTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+    const allowedPdfTypes = ['application/pdf'];
+    
+    if (allowedVideoTypes.includes(file.mimetype) || allowedPdfTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only MP4, MOV, AVI, and WEBM videos are allowed.'));
+      cb(new Error('Invalid file type. Only MP4, MOV, AVI, WEBM videos and PDF files are allowed.'));
     }
   }
 });
@@ -89,6 +91,20 @@ async function initializeRepo() {
   console.log('🔧 Initializing repository...');
   
   try {
+    // Validate environment variables
+    if (!GITHUB_TOKEN) {
+      throw new Error('GITHUB_TOKEN environment variable is not set');
+    }
+    if (!GITHUB_REPO_URL) {
+      throw new Error('GITHUB_REPO_URL environment variable is not set');
+    }
+    if (!GITHUB_USERNAME) {
+      throw new Error('GITHUB_USERNAME environment variable is not set');
+    }
+    if (!GITHUB_EMAIL) {
+      throw new Error('GITHUB_EMAIL environment variable is not set');
+    }
+    
     // Check if repo exists
     const repoExists = await fs.access(REPO_PATH).then(() => true).catch(() => false);
     
@@ -144,12 +160,29 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend server is running' });
+  const envCheck = {
+    GITHUB_TOKEN: !!GITHUB_TOKEN,
+    GITHUB_REPO_URL: !!GITHUB_REPO_URL,
+    GITHUB_USERNAME: !!GITHUB_USERNAME,
+    GITHUB_EMAIL: !!GITHUB_EMAIL,
+  };
+  
+  const allConfigured = Object.values(envCheck).every(val => val === true);
+  
+  res.json({ 
+    status: 'ok', 
+    message: 'Backend server is running',
+    environment: allConfigured ? 'configured' : 'missing variables',
+    variables: envCheck
+  });
 });
 
-// Upload video endpoint
-app.post('/api/upload-video', upload.single('video'), async (req, res) => {
-  console.log('📹 Video upload request received');
+// Upload video and PDF endpoint
+app.post('/api/upload-video', upload.fields([
+  { name: 'video', maxCount: 1 },
+  { name: 'pdf', maxCount: 1 }
+]), async (req, res) => {
+  console.log('📹 Upload request received');
   
   try {
     // Ensure repo is initialized
@@ -165,13 +198,16 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
     await git.pull('origin', 'main');
     
     let videoUrl = '';
+    let pdfUrl = '';
     let youtubeUrl = req.body.youtubeUrl || '';
     
     // Handle video file upload
-    if (req.file) {
+    if (req.files && req.files['video']) {
+      const videoFile = req.files['video'][0];
+      
       // Generate unique filename
       const timestamp = Date.now();
-      const originalName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const originalName = videoFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
       const filename = `${timestamp}_${originalName}`;
       
       // Save video to public/videos directory
@@ -179,7 +215,7 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
       await fs.mkdir(videosDir, { recursive: true });
       
       const videoPath = path.join(videosDir, filename);
-      await fs.writeFile(videoPath, req.file.buffer);
+      await fs.writeFile(videoPath, videoFile.buffer);
       
       console.log(`💾 Video saved: ${filename}`);
       
@@ -188,6 +224,31 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
       await git.add(relativeVideoPath);
       
       videoUrl = `/videos/${filename}`;
+    }
+    
+    // Handle PDF file upload
+    if (req.files && req.files['pdf']) {
+      const pdfFile = req.files['pdf'][0];
+      
+      // Generate unique filename
+      const timestamp = Date.now();
+      const originalName = pdfFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}_${originalName}`;
+      
+      // Save PDF to public/docs directory
+      const docsDir = path.join(REPO_PATH, 'my-app', 'public', 'docs');
+      await fs.mkdir(docsDir, { recursive: true });
+      
+      const pdfPath = path.join(docsDir, filename);
+      await fs.writeFile(pdfPath, pdfFile.buffer);
+      
+      console.log(`📄 PDF saved: ${filename}`);
+      
+      // Add to git
+      const relativePdfPath = path.join('my-app', 'public', 'docs', filename);
+      await git.add(relativePdfPath);
+      
+      pdfUrl = `/docs/${filename}`;
     }
     
     // Update projects.json
@@ -210,8 +271,8 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
       youtubeUrl: youtubeUrl,
       thumbnail: req.body.thumbnail || '',
       tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
-      link: req.body.link || '#',
-      pdfUrl: req.body.pdfUrl || '',
+      link: req.body.link || '',
+      pdfUrl: pdfUrl,
       createdAt: new Date().toISOString()
     };
     
@@ -238,24 +299,35 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
     
     console.log('✅ Upload complete!');
     
+    // Generate appropriate success message
+    let message = 'Project saved successfully';
+    if (videoUrl && pdfUrl) {
+      message = 'Video and PDF uploaded successfully';
+    } else if (videoUrl) {
+      message = 'Video uploaded successfully';
+    } else if (youtubeUrl && pdfUrl) {
+      message = 'Project with YouTube video and PDF saved successfully';
+    } else if (youtubeUrl) {
+      message = 'Project with YouTube video saved successfully';
+    } else if (pdfUrl) {
+      message = 'Project with PDF saved successfully';
+    }
+    
     const response = {
       success: true,
-      message: youtubeUrl ? 'Project with YouTube video saved successfully' : 'Video uploaded successfully',
+      message: message,
       project: newProject
     };
-    
-    // Only include filename for file uploads
-    if (req.file) {
-      response.filename = filename;
-    }
     
     res.json(response);
     
   } catch (error) {
     console.error('❌ Upload error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
-      error: 'Failed to upload video',
-      details: error.message
+      error: 'Failed to upload project',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
