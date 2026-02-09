@@ -115,6 +115,8 @@ export default function Portfolio() {
           description: newProject.description,
           tags: techArray,
           thumbnail: newProject.thumbnail || "",
+          link: newProject.link || "#",
+          pdfUrl: newProject.pdfUrl || "",
         };
 
         // Upload to backend with video and progress tracking
@@ -191,6 +193,8 @@ export default function Portfolio() {
           tags: techArray,
           thumbnail: newProject.thumbnail || "",
           youtubeUrl: newProject.youtubeUrl,
+          link: newProject.link || "#",
+          pdfUrl: newProject.pdfUrl || "",
         };
 
         // Upload to backend (without video file)
@@ -576,6 +580,23 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
+                      Project Link (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="link"
+                      value={newProject.link}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border rounded-md bg-background"
+                      placeholder="https://github.com/yourproject or https://demo.com"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Add a link to GitHub repo, live demo, or project website for the "Learn More" button
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
                       Video Source *
                     </label>
                     <div className="flex gap-4 mb-3">
@@ -789,14 +810,23 @@ export default function Portfolio() {
                         </a>
                       </Button>
                     )}
-                    <Button
-                      variant={project.pdfUrl ? "default" : "outline"}
-                      size="sm"
-                      className="gap-2 flex-1"
-                    >
-                      <ExternalLinkIcon className="h-4 w-4" />
-                      Learn More
-                    </Button>
+                    {project.link && project.link !== "#" && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="gap-2 flex-1"
+                        asChild
+                      >
+                        <a
+                          href={project.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLinkIcon className="h-4 w-4" />
+                          Learn More
+                        </a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

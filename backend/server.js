@@ -210,6 +210,8 @@ app.post('/api/upload-video', upload.single('video'), async (req, res) => {
       youtubeUrl: youtubeUrl,
       thumbnail: req.body.thumbnail || '',
       tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [],
+      link: req.body.link || '#',
+      pdfUrl: req.body.pdfUrl || '',
       createdAt: new Date().toISOString()
     };
     

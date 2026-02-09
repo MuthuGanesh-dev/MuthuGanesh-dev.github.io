@@ -39,6 +39,8 @@ export async function uploadProjectWithVideo(projectData, videoFile, password, o
     formData.append('description', projectData.description || '');
     formData.append('thumbnail', projectData.thumbnail || '');
     formData.append('tags', projectData.tags ? projectData.tags.join(',') : '');
+    formData.append('link', projectData.link || '#');
+    formData.append('pdfUrl', projectData.pdfUrl || '');
     if (projectData.youtubeUrl) {
       formData.append('youtubeUrl', projectData.youtubeUrl);
     }
