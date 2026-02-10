@@ -89,15 +89,18 @@
     },
     {
       "id": 1770619093395,
-      "title": "jfkfkl",
-      "description": "jnfemfml",
+      "title": "Testcase 3",
+      "description": "checking edit button",
       "videoUrl": "/videos/1770619093252_lowmp_video.mp4",
       "youtubeUrl": "",
       "thumbnail": "",
       "tags": [
         "ARDUINO"
       ],
-      "createdAt": "2026-02-09T06:38:13.395Z"
+      "createdAt": "2026-02-09T06:38:13.395Z",
+      "link": "",
+      "pdfUrl": "",
+      "updatedAt": "2026-02-10T05:50:42.923Z"
     },
     {
       "id": 1770694943519,
