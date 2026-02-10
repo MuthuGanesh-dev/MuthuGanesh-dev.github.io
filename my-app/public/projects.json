@@ -92,15 +92,16 @@
       "title": "Testcase 3",
       "description": "checking edit button",
       "videoUrl": "/videos/1770619093252_lowmp_video.mp4",
-      "youtubeUrl": "",
+      "youtubeUrl": "https://www.youtube.com/watch?v=7BKYgZ-HoYw&list=RDMM7BKYgZ-HoYw&start_radio=1",
       "thumbnail": "",
       "tags": [
-        "ARDUINO"
+        "ARDUINO",
+        "SYSTEM ENGINEERING"
       ],
       "createdAt": "2026-02-09T06:38:13.395Z",
       "link": "",
       "pdfUrl": "",
-      "updatedAt": "2026-02-10T05:50:42.923Z"
+      "updatedAt": "2026-02-10T05:51:54.728Z"
     },
     {
       "id": 1770694943519,
