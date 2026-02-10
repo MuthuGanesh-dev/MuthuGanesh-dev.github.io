@@ -24,6 +24,7 @@ import {
   deleteProjectFromBackend,
   checkBackendHealth,
 } from "@/utils/backendStorage";
+import { getVideoUrl, getPdfUrl } from "@/utils/assetHelper";
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
@@ -750,7 +751,7 @@ export default function Portfolio() {
                       controls
                       preload="metadata"
                     >
-                      <source src={project.videoUrl} type="video/mp4" />
+                      <source src={getVideoUrl(project.videoUrl)} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   </div>
@@ -790,7 +791,7 @@ export default function Portfolio() {
                         asChild
                       >
                         <a
-                          href={project.pdfUrl}
+                          href={getPdfUrl(project.pdfUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
