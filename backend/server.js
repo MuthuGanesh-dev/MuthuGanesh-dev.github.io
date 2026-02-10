@@ -356,6 +356,172 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
+// Update/Edit project
+app.put('/api/projects/:id', upload.fields([
+  { name: 'video', maxCount: 1 },
+  { name: 'pdf', maxCount: 1 }
+]), async (req, res) => {
+  console.log('✏️ Update request received');
+  
+  try {
+    // Ensure repo is initialized
+    if (!git) {
+      await initializeRepo();
+    }
+    
+    // Clean up any stale lock files before Git operations
+    await cleanupGitLocks();
+    
+    // Pull latest changes first
+    console.log('🔄 Pulling latest changes...');
+    await git.pull('origin', 'main');
+    
+    const projectId = parseInt(req.params.id);
+    const projectsJsonPath = path.join(REPO_PATH, 'my-app', 'public', 'projects.json');
+    
+    const jsonContent = await fs.readFile(projectsJsonPath, 'utf-8');
+    const projectsData = JSON.parse(jsonContent);
+    
+    const projectIndex = projectsData.projects.findIndex(p => p.id === projectId);
+    
+    if (projectIndex === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    const existingProject = projectsData.projects[projectIndex];
+    let videoUrl = existingProject.videoUrl || '';
+    let pdfUrl = existingProject.pdfUrl || '';
+    let youtubeUrl = req.body.youtubeUrl || '';
+    
+    // Handle new video file upload
+    if (req.files && req.files['video']) {
+      const videoFile = req.files['video'][0];
+      
+      // Delete old video file if exists
+      if (existingProject.videoUrl) {
+        const oldVideoFilename = existingProject.videoUrl.replace('/videos/', '');
+        const oldVideoPath = path.join(REPO_PATH, 'my-app', 'public', 'videos', oldVideoFilename);
+        
+        try {
+          await fs.unlink(oldVideoPath);
+          await git.rm(['my-app/public/videos/' + oldVideoFilename]);
+          console.log(`🗑️ Old video deleted: ${oldVideoFilename}`);
+        } catch (error) {
+          console.log('Old video file not found or already deleted');
+        }
+      }
+      
+      // Upload new video
+      const timestamp = Date.now();
+      const originalName = videoFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}_${originalName}`;
+      
+      const videosDir = path.join(REPO_PATH, 'my-app', 'public', 'videos');
+      await fs.mkdir(videosDir, { recursive: true });
+      
+      const videoPath = path.join(videosDir, filename);
+      await fs.writeFile(videoPath, videoFile.buffer);
+      
+      console.log(`💾 New video saved: ${filename}`);
+      
+      const relativeVideoPath = path.join('my-app', 'public', 'videos', filename);
+      await git.add(relativeVideoPath);
+      
+      videoUrl = `/videos/${filename}`;
+      youtubeUrl = ''; // Clear YouTube URL if uploading new video
+    }
+    
+    // Handle new PDF file upload
+    if (req.files && req.files['pdf']) {
+      const pdfFile = req.files['pdf'][0];
+      
+      // Delete old PDF file if exists
+      if (existingProject.pdfUrl) {
+        const oldPdfFilename = existingProject.pdfUrl.replace('/docs/', '');
+        const oldPdfPath = path.join(REPO_PATH, 'my-app', 'public', 'docs', oldPdfFilename);
+        
+        try {
+          await fs.unlink(oldPdfPath);
+          await git.rm(['my-app/public/docs/' + oldPdfFilename]);
+          console.log(`🗑️ Old PDF deleted: ${oldPdfFilename}`);
+        } catch (error) {
+          console.log('Old PDF file not found or already deleted');
+        }
+      }
+      
+      // Upload new PDF
+      const timestamp = Date.now();
+      const originalName = pdfFile.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}_${originalName}`;
+      
+      const docsDir = path.join(REPO_PATH, 'my-app', 'public', 'docs');
+      await fs.mkdir(docsDir, { recursive: true });
+      
+      const pdfPath = path.join(docsDir, filename);
+      await fs.writeFile(pdfPath, pdfFile.buffer);
+      
+      console.log(`📄 New PDF saved: ${filename}`);
+      
+      const relativePdfPath = path.join('my-app', 'public', 'docs', filename);
+      await git.add(relativePdfPath);
+      
+      pdfUrl = `/docs/${filename}`;
+    }
+    
+    // Update project data
+    const updatedProject = {
+      ...existingProject,
+      title: req.body.title || existingProject.title,
+      description: req.body.description || existingProject.description,
+      videoUrl: videoUrl,
+      youtubeUrl: youtubeUrl,
+      thumbnail: req.body.thumbnail || existingProject.thumbnail || '',
+      tags: req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : existingProject.tags,
+      link: req.body.link || existingProject.link || '',
+      pdfUrl: pdfUrl,
+      updatedAt: new Date().toISOString()
+    };
+    
+    projectsData.projects[projectIndex] = updatedProject;
+    
+    // Save updated projects.json
+    await fs.writeFile(
+      projectsJsonPath,
+      JSON.stringify(projectsData, null, 2),
+      'utf-8'
+    );
+    
+    await git.add('my-app/public/projects.json');
+    
+    // Commit changes
+    const commitMessage = `Update project: ${updatedProject.title}`;
+    await git.commit(commitMessage);
+    
+    console.log('📝 Changes committed');
+    
+    // Push to GitHub
+    console.log('⬆️  Pushing to GitHub...');
+    await git.push('origin', 'main');
+    
+    console.log('✅ Update complete!');
+    
+    res.json({
+      success: true,
+      message: 'Project updated successfully',
+      project: updatedProject
+    });
+    
+  } catch (error) {
+    console.error('❌ Update error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      error: 'Failed to update project',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
 // Delete project
 app.delete('/api/projects/:id', async (req, res) => {
   try {
@@ -392,6 +558,19 @@ app.delete('/api/projects/:id', async (req, res) => {
         await git.rm(['my-app/public/videos/' + videoFilename]);
       } catch (error) {
         console.log('Video file not found or already deleted');
+      }
+    }
+    
+    // Delete PDF file if exists
+    if (project.pdfUrl) {
+      const pdfFilename = project.pdfUrl.replace('/docs/', '');
+      const pdfPath = path.join(REPO_PATH, 'my-app', 'public', 'docs', pdfFilename);
+      
+      try {
+        await fs.unlink(pdfPath);
+        await git.rm(['my-app/public/docs/' + pdfFilename]);
+      } catch (error) {
+        console.log('PDF file not found or already deleted');
       }
     }
     

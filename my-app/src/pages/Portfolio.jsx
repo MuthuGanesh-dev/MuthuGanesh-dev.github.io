@@ -13,6 +13,7 @@ import {
   PlusIcon,
   XIcon,
   Trash2Icon,
+  PencilIcon,
 } from "lucide-react";
 import {
   saveProjectsToGitHub,
@@ -22,14 +23,19 @@ import {
   uploadProjectWithVideo,
   loadProjectsFromBackend,
   deleteProjectFromBackend,
+  updateProjectInBackend,
   checkBackendHealth,
 } from "@/utils/backendStorage";
 import { getVideoUrl, getPdfUrl } from "@/utils/assetHelper";
+import { checkBackendConnection } from "@/utils/backendCheck";
 
 export default function Portfolio() {
   const [showAddProject, setShowAddProject] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [videoSource, setVideoSource] = useState("file"); // "file" or "youtube"
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState(null);
+  const [backendStatus, setBackendStatus] = useState(null);
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
@@ -60,7 +66,7 @@ export default function Portfolio() {
     return false;
   };
 
-  // Load projects from backend on component mount
+  // Load projects and check backend on component mount
   useEffect(() => {
     const loadProjects = async () => {
       try {
@@ -72,7 +78,14 @@ export default function Portfolio() {
       }
     };
 
+    const checkBackend = async () => {
+      const status = await checkBackendConnection();
+      setBackendStatus(status);
+      console.log('Backend status:', status);
+    };
+
     loadProjects();
+    checkBackend();
   }, []);
 
   const handleSmoothScroll = (e, targetId) => {
@@ -88,6 +101,11 @@ export default function Portfolio() {
 
   const handleAddProject = async (e) => {
     e.preventDefault();
+
+    // If in edit mode, handle update instead
+    if (isEditMode) {
+      return handleUpdateProject(e);
+    }
 
     // Check video source
     if (videoSource === "file") {
@@ -177,7 +195,7 @@ export default function Portfolio() {
       }
     } else {
       // YouTube URL - save directly without upload
-      if (!newProject.youtubeUrl) {
+      if (!newProject.youtubeUrl || newProject.youtubeUrl.trim() === "") {
         alert("Please enter a YouTube URL");
         return;
       }
@@ -248,6 +266,138 @@ export default function Portfolio() {
     }
   };
 
+  const handleUpdateProject = async (e) => {
+    e.preventDefault();
+
+    console.log('🔧 Starting update process...');
+    console.log('Edit mode:', isEditMode);
+    console.log('Editing project ID:', editingProjectId);
+    console.log('Video source:', videoSource);
+    console.log('Current project data:', newProject);
+
+    // Check video source - video is optional when editing
+    const videoInput = document.querySelector('input[type="file"][accept*="video"]');
+    const videoFile = videoInput?.files?.[0];
+
+    // Get PDF file if selected
+    const pdfInput = document.querySelector('input[type="file"][accept=".pdf"]');
+    const pdfFile = pdfInput?.files?.[0];
+
+    console.log('Video file selected:', videoFile ? videoFile.name : 'None');
+    console.log('PDF file selected:', pdfFile ? pdfFile.name : 'None');
+
+    setUploadingVideo(true);
+    setUploadProgress(0);
+
+    try {
+      // Convert comma-separated tech string to array and uppercase
+      const techArray = newProject.tech
+        .split(",")
+        .map((t) => t.trim().toUpperCase())
+        .filter((t) => t);
+
+      const projectData = {
+        title: newProject.title,
+        description: newProject.description,
+        tags: techArray,
+        thumbnail: newProject.thumbnail || "",
+        youtubeUrl: newProject.youtubeUrl || "",
+        link: newProject.link || "",
+      };
+
+      console.log('📤 Sending update request to backend...');
+      console.log('Project data:', projectData);
+
+      // Update to backend with optional video, PDF, and progress tracking
+      const result = await updateProjectInBackend(
+        editingProjectId,
+        projectData, 
+        videoFile,
+        pdfFile,
+        ADMIN_PASSWORD,
+        (progress) => {
+          setUploadProgress(progress);
+          console.log('Upload progress:', progress + '%');
+        }
+      );
+
+      console.log('✅ Backend response:', result);
+
+      if (result.success) {
+        alert("✅ " + result.message);
+        
+        // Reset form
+        setNewProject({
+          title: "",
+          description: "",
+          tech: "",
+          videoUrl: "",
+          youtubeUrl: "",
+          pdfUrl: "",
+          link: "",
+        });
+        setShowAddProject(false);
+        setIsEditMode(false);
+        setEditingProjectId(null);
+        
+        // Reload projects after a short delay
+        setTimeout(async () => {
+          try {
+            const updatedProjects = await loadProjectsFromBackend();
+            setProjects(updatedProjects || []);
+          } catch (error) {
+            console.error("Error reloading projects:", error);
+          }
+        }, 2000);
+      } else {
+        alert("⚠️ " + result.message);
+      }
+    } catch (error) {
+      console.error("❌ Update error:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      alert("⚠️ Failed to update project: " + error.message);
+    } finally {
+      setUploadingVideo(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleEditProject = (indexToEdit) => {
+    // Check authentication first
+    if (!isAuthenticated && !checkPassword()) {
+      return;
+    }
+
+    const projectToEdit = projects[indexToEdit];
+    
+    // Populate form with existing project data
+    setNewProject({
+      title: projectToEdit.title || "",
+      description: projectToEdit.description || "",
+      tech: (projectToEdit.tags || projectToEdit.tech || []).join(", "),
+      videoUrl: projectToEdit.videoUrl || "",
+      youtubeUrl: projectToEdit.youtubeUrl || "",
+      pdfUrl: projectToEdit.pdfUrl || "",
+      link: projectToEdit.link || "",
+    });
+    
+    // Set video source based on existing data
+    if (projectToEdit.youtubeUrl) {
+      setVideoSource("youtube");
+    } else {
+      setVideoSource("file");
+    }
+    
+    // Set edit mode
+    setIsEditMode(true);
+    setEditingProjectId(projectToEdit.id);
+    setShowAddProject(true);
+  };
+
   const handleDeleteProject = async (indexToDelete) => {
     // Check authentication first
     if (!isAuthenticated && !checkPassword()) {
@@ -287,6 +437,21 @@ export default function Portfolio() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Handle video source change - clear the opposite field
+  const handleVideoSourceChange = (newSource) => {
+    setVideoSource(newSource);
+    if (newSource === "file") {
+      // Switching to file upload, clear YouTube URL
+      setNewProject((prev) => ({
+        ...prev,
+        youtubeUrl: "",
+      }));
+    } else {
+      // Switching to YouTube, note: we keep videoUrl for edit mode reference
+      // The backend will handle replacement
+    }
   };
 
   // Handle PDF file selection (validation only - actual upload happens with form submit)
@@ -500,6 +665,18 @@ export default function Portfolio() {
             <Button
               onClick={() => {
                 if (isAuthenticated || checkPassword()) {
+                  setIsEditMode(false);
+                  setEditingProjectId(null);
+                  setNewProject({
+                    title: "",
+                    description: "",
+                    tech: "",
+                    videoUrl: "",
+                    youtubeUrl: "",
+                    pdfUrl: "",
+                    link: "",
+                  });
+                  setVideoSource("file");
                   setShowAddProject(true);
                 }
               }}
@@ -515,15 +692,52 @@ export default function Portfolio() {
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-card border rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold">Add New Project</h3>
+                  <h3 className="text-2xl font-bold">
+                    {isEditMode ? "Edit Project" : "Add New Project"}
+                  </h3>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setShowAddProject(false)}
+                    onClick={() => {
+                      setShowAddProject(false);
+                      setIsEditMode(false);
+                      setEditingProjectId(null);
+                      setNewProject({
+                        title: "",
+                        description: "",
+                        tech: "",
+                        videoUrl: "",
+                        youtubeUrl: "",
+                        pdfUrl: "",
+                        link: "",
+                      });
+                    }}
                   >
                     <XIcon className="h-5 w-5" />
                   </Button>
                 </div>
+
+                {/* Backend Status Indicator (Development) */}
+                {backendStatus && !backendStatus.connected && (
+                  <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/50 rounded-md">
+                    <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
+                      ⚠️ Backend Connection Issue
+                    </p>
+                    <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80 mt-1">
+                      {backendStatus.message}
+                    </p>
+                    <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80 mt-1">
+                      Make sure your backend is deployed and running at: {backendStatus.url}
+                    </p>
+                  </div>
+                )}
+                {backendStatus && backendStatus.connected && (
+                  <div className="mb-4 p-2 bg-green-500/10 border border-green-500/50 rounded-md">
+                    <p className="text-xs text-green-600 dark:text-green-400">
+                      ✅ Backend connected: {backendStatus.url}
+                    </p>
+                  </div>
+                )}
 
                 <form onSubmit={handleAddProject} className="space-y-4">
                   <div>
@@ -592,8 +806,13 @@ export default function Portfolio() {
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Video Source *
+                      Video Source {isEditMode ? "" : "*"}
                     </label>
+                    {isEditMode && (
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Current: {newProject.youtubeUrl ? "YouTube" : newProject.videoUrl ? "Video File" : "None"}
+                      </p>
+                    )}
                     <div className="flex gap-4 mb-3">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -601,7 +820,7 @@ export default function Portfolio() {
                           name="videoSource"
                           value="file"
                           checked={videoSource === "file"}
-                          onChange={(e) => setVideoSource(e.target.value)}
+                          onChange={(e) => handleVideoSourceChange(e.target.value)}
                           className="w-4 h-4"
                         />
                         <span className="text-sm">Upload Video File</span>
@@ -612,7 +831,7 @@ export default function Portfolio() {
                           name="videoSource"
                           value="youtube"
                           checked={videoSource === "youtube"}
-                          onChange={(e) => setVideoSource(e.target.value)}
+                          onChange={(e) => handleVideoSourceChange(e.target.value)}
                           className="w-4 h-4"
                         />
                         <span className="text-sm">YouTube URL</span>
@@ -624,7 +843,7 @@ export default function Portfolio() {
                         <input
                           type="file"
                           accept="video/*"
-                          required={videoSource === "file"}
+                          required={videoSource === "file" && !isEditMode}
                           className="w-full px-3 py-2 border rounded-md bg-background file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
                         />
                         {uploadingVideo && (
@@ -642,7 +861,10 @@ export default function Portfolio() {
                           </div>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          Upload a video file (max 100MB). For larger files, use YouTube URL option.
+                          {isEditMode 
+                            ? "Upload a new video file to replace existing one (optional). Max 100MB."
+                            : "Upload a video file (max 100MB). For larger files, use YouTube URL option."
+                          }
                         </p>
                       </div>
                     ) : (
@@ -652,7 +874,7 @@ export default function Portfolio() {
                           name="youtubeUrl"
                           value={newProject.youtubeUrl}
                           onChange={handleInputChange}
-                          required={videoSource === "youtube"}
+                          required={videoSource === "youtube" && !isEditMode && !newProject.youtubeUrl}
                           className="w-full px-3 py-2 border rounded-md bg-background"
                           placeholder="https://www.youtube.com/watch?v=..."
                         />
@@ -693,17 +915,30 @@ export default function Portfolio() {
                     >
                       {uploadingVideo ? (
                         videoSource === "file" ? 
-                          `Uploading... ${uploadProgress}%` : 
-                          "Saving..."
+                          `${isEditMode ? 'Updating' : 'Uploading'}... ${uploadProgress}%` : 
+                          `${isEditMode ? 'Updating' : 'Saving'}...`
                       ) : (
-                        "Add Project"
+                        isEditMode ? "Update Project" : "Add Project"
                       )}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       className="flex-1"
-                      onClick={() => setShowAddProject(false)}
+                      onClick={() => {
+                        setShowAddProject(false);
+                        setIsEditMode(false);
+                        setEditingProjectId(null);
+                        setNewProject({
+                          title: "",
+                          description: "",
+                          tech: "",
+                          videoUrl: "",
+                          youtubeUrl: "",
+                          pdfUrl: "",
+                          link: "",
+                        });
+                      }}
                       disabled={uploadingVideo}
                     >
                       Cancel
@@ -721,16 +956,27 @@ export default function Portfolio() {
                 key={idx}
                 className="border rounded-lg overflow-hidden bg-card hover:shadow-xl transition-all relative"
               >
-                {/* Delete Button */}
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-2 right-2 z-10 h-8 w-8"
-                  onClick={() => handleDeleteProject(idx)}
-                  title="Delete project"
-                >
-                  <Trash2Icon className="h-4 w-4" />
-                </Button>
+                {/* Action Buttons */}
+                <div className="absolute top-2 right-2 z-10 flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => handleEditProject(idx)}
+                    title="Edit project"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDeleteProject(idx)}
+                    title="Delete project"
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
+                </div>
 
                 {/* Video Preview */}
                 {project.youtubeUrl ? (

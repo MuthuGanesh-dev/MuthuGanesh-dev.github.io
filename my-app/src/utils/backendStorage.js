@@ -171,6 +171,108 @@ export async function deleteProjectFromBackend(projectId, password) {
 }
 
 /**
+ * Update/Edit existing project in backend
+ * @param {number} projectId - Project ID to update
+ * @param {Object} projectData - Updated project metadata
+ * @param {File} videoFile - New video file to upload (optional)
+ * @param {File} pdfFile - New PDF file to upload (optional)
+ * @param {string} password - Admin password for authentication
+ * @param {Function} onProgress - Optional callback for upload progress (0-100)
+ * @returns {Promise<{success: boolean, message: string, project?: Object}>}
+ */
+export async function updateProjectInBackend(projectId, projectData, videoFile, pdfFile, password, onProgress) {
+  // Validate admin password
+  const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+  
+  if (password !== adminPassword) {
+    return {
+      success: false,
+      message: 'Invalid admin password'
+    };
+  }
+
+  try {
+    console.log(`📡 Backend URL: ${BACKEND_URL}`);
+    console.log(`🔄 Updating project ID: ${projectId}`);
+
+    // Create form data
+    const formData = new FormData();
+    if (videoFile) {
+      formData.append('video', videoFile);
+      console.log('📹 Video file attached:', videoFile.name);
+    }
+    if (pdfFile) {
+      formData.append('pdf', pdfFile);
+      console.log('📄 PDF file attached:', pdfFile.name);
+    }
+    formData.append('title', projectData.title || '');
+    formData.append('description', projectData.description || '');
+    formData.append('thumbnail', projectData.thumbnail || '');
+    formData.append('tags', projectData.tags ? projectData.tags.join(',') : '');
+    formData.append('link', projectData.link || '');
+    if (projectData.youtubeUrl) {
+      formData.append('youtubeUrl', projectData.youtubeUrl);
+    }
+
+    // Use XMLHttpRequest for progress tracking
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable && onProgress) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          onProgress(percentComplete);
+        }
+      });
+
+      // Handle completion
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const result = JSON.parse(xhr.responseText);
+            resolve({
+              success: true,
+              message: 'Project updated successfully!',
+              project: result.project
+            });
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.details || error.error || 'Update failed'));
+          } catch {
+            reject(new Error(`Update failed with status ${xhr.status}`));
+          }
+        }
+      });
+
+      // Handle errors
+      xhr.addEventListener('error', () => {
+        reject(new Error('Network error during update. Make sure your backend is running at ' + BACKEND_URL));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Update aborted'));
+      });
+
+      // Send request
+      xhr.open('PUT', `${BACKEND_URL}/api/projects/${projectId}`);
+      xhr.send(formData);
+    });
+
+  } catch (error) {
+    console.error('Update error:', error);
+    return {
+      success: false,
+      message: `Error: ${error.message}`
+    };
+  }
+}
+
+/**
  * Fallback: Load projects directly from GitHub Pages
  * @returns {Promise<Array>} Array of projects
  */
