@@ -88,21 +88,6 @@
       "createdAt": "2026-02-08T07:01:35.776Z"
     },
     {
-      "id": 1770619093395,
-      "title": "Check change name",
-      "description": "Yep",
-      "videoUrl": "/videos/1770619093252_lowmp_video.mp4",
-      "youtubeUrl": "",
-      "thumbnail": "",
-      "tags": [
-        "ARDUINO"
-      ],
-      "createdAt": "2026-02-09T06:38:13.395Z",
-      "link": "",
-      "pdfUrl": "",
-      "updatedAt": "2026-02-13T07:54:01.603Z"
-    },
-    {
       "id": 1770694943519,
       "title": "Testcase 2",
       "description": "checking edit future",
