@@ -88,21 +88,6 @@
       "createdAt": "2026-02-08T07:01:35.776Z"
     },
     {
-      "id": 1770694943519,
-      "title": "Testcase 2",
-      "description": "checking edit future",
-      "videoUrl": "",
-      "youtubeUrl": "https://youtu.be/72tCWK3HlaA?list=RDH-EUG8CuWGM",
-      "thumbnail": "",
-      "tags": [
-        "SCHEMATIC & PCB DESIGN"
-      ],
-      "link": "",
-      "pdfUrl": "/docs/1770694942468_python_certificate.pdf",
-      "createdAt": "2026-02-10T03:42:23.519Z",
-      "updatedAt": "2026-02-10T14:42:37.952Z"
-    },
-    {
       "id": 1770695192056,
       "title": "Testcase 3",
       "description": "pdf checking",
